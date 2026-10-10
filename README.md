@@ -35,7 +35,6 @@ Setup verified on 2026-10-09. Full settings with sources are in [`configs/models
 | GPT-6 Luna | LLM Gateway (DevPass) | `gpt-6-luna` | `medium` | 64,000 |
 | Gemini 3.8 Flash | LLM Gateway (DevPass) | `gemini-3.8-flash` | `medium` | 65,536 |
 | DeepSeek V4.1 Flash | Neuralwatt (flex) | `deepseek-ai/DeepSeek-V4.1-Flash` | `high` | 64,000 |
-| Kimi K3 | Neuralwatt (flex) | `moonshotai/Kimi-K3` | `max` | 64,000 |
 | GLM-5.3 | Neuralwatt (flex) | `zai-org/GLM-5.3` | `max` | 64,000 |
 | GLM-5.3-Flash | Neuralwatt (flex) | `zai-org/GLM-5.3-Flash` | `max` | 64,000 |
 | Qwen 3.8 27B | Neuralwatt (flex) | `Qwen/Qwen3.8-27B-FP8` (FP8) | `xhigh` | 64,000 |
