@@ -34,7 +34,6 @@ Setup verified on 2026-10-09. Full settings with sources are in [`configs/models
 | Claude Haiku 5.5 | LLM Gateway (DevPass) | `claude-haiku-5-5` | `medium` | 64,000 |
 | GPT-6 Luna | LLM Gateway (DevPass) | `gpt-6-luna` | `medium` | 64,000 |
 | Gemini 3.8 Flash | LLM Gateway (DevPass) | `gemini-3.8-flash` | `medium` | 65,536 |
-| Claude Sonnet 5.5 † | LLM Gateway (DevPass) | `claude-sonnet-5-5` | `high` | 64,000 |
 | GPT-6.1 Sol † | LLM Gateway (DevPass) | `gpt-6.1-sol` | `medium` | 64,000 |
 | DeepSeek V4.1 Flash | Neuralwatt (flex) | `deepseek-ai/DeepSeek-V4.1-Flash` | `high` | 64,000 |
 | GLM-5.3 † | Neuralwatt (flex) | `zai-org/GLM-5.3` | `max` | 64,000 |
