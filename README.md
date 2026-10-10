@@ -34,11 +34,15 @@ Setup verified on 2026-10-09. Full settings with sources are in [`configs/models
 | Claude Haiku 5.5 | LLM Gateway (DevPass) | `claude-haiku-5-5` | `medium` | 64,000 |
 | GPT-6 Luna | LLM Gateway (DevPass) | `gpt-6-luna` | `medium` | 64,000 |
 | Gemini 3.8 Flash | LLM Gateway (DevPass) | `gemini-3.8-flash` | `medium` | 65,536 |
+| Claude Sonnet 5.5 † | LLM Gateway (DevPass) | `claude-sonnet-5-5` | `high` | 64,000 |
+| GPT-6.1 Sol † | LLM Gateway (DevPass) | `gpt-6.1-sol` | `medium` | 64,000 |
 | DeepSeek V4.1 Flash | Neuralwatt (flex) | `deepseek-ai/DeepSeek-V4.1-Flash` | `high` | 64,000 |
-| GLM-5.3 | Neuralwatt (flex) | `zai-org/GLM-5.3` | `max` | 64,000 |
+| GLM-5.3 † | Neuralwatt (flex) | `zai-org/GLM-5.3` | `max` | 64,000 |
 | GLM-5.3-Flash | Neuralwatt (flex) | `zai-org/GLM-5.3-Flash` | `max` | 64,000 |
 | Qwen 3.8 27B | Neuralwatt (flex) | `Qwen/Qwen3.8-27B-FP8` (FP8) | `xhigh` | 64,000 |
 | Gemma 4 31B | Neuralwatt | `nvidia/Gemma-4-31B-IT-NVFP4` (4-bit) | `max` (thinking on) | 16,384 |
+
+† Larger mid-tier or flagship models included as references; the others are lightweight models.
 
 Closed models go through [LLM Gateway](https://llmgateway.io), which routes each request to one of
 the model developer's own or cloud-partner endpoints (e.g. Anthropic or AWS Bedrock for Claude).
