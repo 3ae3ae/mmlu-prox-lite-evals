@@ -1,0 +1,15 @@
+name: Claude Sonnet 5.5
+provider: llmgateway  # DevPass; routed to Anthropic, Azure or AWS Bedrock (cannot be pinned)
+model_id: claude-sonnet-5-5
+reasoning:
+  effort: high  # the gateway maps reasoning_effort to Anthropic's effort (adaptive thinking)
+  basis: official API default (adaptive thinking on; effort defaults to high on Sonnet 5.5)
+  source: https://platform.claude.com/docs/en/build-with-claude/effort
+sampling:
+  temperature: 1.0  # the API default; Sonnet 5.5 rejects non-default sampling values
+max_tokens: 64000  # model limit is 128,000
+verified: 2026-10-10
+notes: >-
+  Mid-tier reference model, not a lightweight model. Dropped and then re-added on 2026-10-10,
+  both times for cost reasons rather than any scores, under protocol v1 unchanged and with
+  the settings that passed the smoke test.
