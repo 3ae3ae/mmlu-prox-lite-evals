@@ -1,0 +1,11 @@
+name: Gemini 3.8 Flash
+provider: llmgateway  # DevPass; routed to Google AI Studio or Vertex (cannot be pinned)
+model_id: gemini-3.8-flash  # stable
+reasoning:
+  effort: medium  # the gateway maps reasoning_effort to Gemini's thinking_level
+  basis: official API default (LOW/MEDIUM/HIGH; MEDIUM is the default; "minimal" is rejected)
+  source: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash
+sampling:
+  temperature: 1.0  # ignored by the backend
+max_tokens: 65536  # model output limit, per the LLM Gateway model list
+verified: 2026-10-09

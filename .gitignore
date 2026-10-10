@@ -1,0 +1,18 @@
+# Secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Local dataset cache (re-downloadable from Hugging Face at the pinned revision)
+data/
+
+# Raw per-question outputs: large, published to the Hugging Face dataset repo instead
+runs/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,19 @@
+[project]
+name = "mmlu-prox-eval"
+version = "0.1.0"
+description = "Per-language, per-subject MMLU-ProX-Lite evaluation of recent lightweight LLMs"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "lm-eval[api]==0.4.13",
+    "pyyaml",
+    "python-dotenv",
+]
+
+[dependency-groups]
+analysis = [
+    "numpy",
+    "pandas",
+    "matplotlib",
+]

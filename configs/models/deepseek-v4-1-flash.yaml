@@ -1,0 +1,16 @@
+name: DeepSeek V4.1 Flash
+provider: neuralwatt
+model_id: deepseek-v4.1-flash-flex  # flex tier: same checkpoint, ~35% cheaper, requests may queue
+served_checkpoint: deepseek-ai/DeepSeek-V4.1-Flash  # Neuralwatt /v1/models metadata
+reasoning:
+  effort: high
+  basis: >-
+    official API default (thinking on, effort high); DeepSeek's own API serves
+    DeepSeek-V4.1-Flash as `deepseek-flash`
+  source: https://api-docs.deepseek.com/guides/thinking_mode/
+sampling:
+  # No developer recommendation for self-hosted sampling was found (DeepSeek's own API
+  # ignores sampling parameters in thinking mode); 1.0 is the common default.
+  temperature: 1.0
+max_tokens: 64000
+verified: 2026-10-09

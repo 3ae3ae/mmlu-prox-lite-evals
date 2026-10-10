@@ -1,0 +1,16 @@
+name: Kimi K3
+provider: neuralwatt
+model_id: kimi-k3-flex  # flex tier: same checkpoint, ~35% cheaper, requests may queue
+served_checkpoint: moonshotai/Kimi-K3  # Neuralwatt /v1/models metadata
+reasoning:
+  effort: max
+  basis: official API default (always reasons; low/high/max; max is the default)
+  source: https://platform.kimi.ai/docs/guide/use-reasoning-effort
+sampling:  # the values Kimi's own API fixes
+  temperature: 1.0
+  top_p: 0.95
+max_tokens: 64000
+verified: 2026-10-09
+notes: >-
+  Flagship-class (2.8T MoE), not a lightweight model, and the most expensive model in
+  this run at max effort.

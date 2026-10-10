@@ -1,0 +1,11 @@
+name: GPT-6 Luna
+provider: llmgateway  # DevPass; routed to OpenAI or Azure (cannot be pinned)
+model_id: gpt-6-luna  # no dated snapshot exists; the run date identifies the version
+reasoning:
+  effort: medium
+  basis: official API default (none/low/medium/high/xhigh/max; medium is the default)
+  source: https://developers.openai.com/api/docs/models/gpt-6-luna
+sampling:
+  temperature: 1.0  # the API default
+max_tokens: 64000  # model limit is 128,000
+verified: 2026-10-09

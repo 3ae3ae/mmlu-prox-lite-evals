@@ -1,0 +1,86 @@
+cff-version: 1.2.0
+message: >-
+  If you use these results, please cite this repository and the MMLU-ProX benchmark it evaluates on.
+type: dataset
+title: "MMLU-ProX-Lite: Where Do Recent Lightweight LLMs Break Down?"
+abstract: >-
+  Per-language and per-subject evaluation of recent LLMs on MMLU-ProX-Lite with
+  lm-evaluation-harness, for within-model diagnosis across languages and subjects.
+authors:
+  - alias: 3ae3ae
+license: MIT
+keywords:
+  - evaluation
+  - multilingual
+  - MMLU-ProX
+references:
+  - type: article
+    title: "MMLU-ProX: A Multilingual Benchmark for Advanced Large Language Model Evaluation"
+    authors:
+      - given-names: "Weihao"
+        family-names: "Xuan"
+      - given-names: "Rui"
+        family-names: "Yang"
+      - given-names: "Heli"
+        family-names: "Qi"
+      - given-names: "Qingcheng"
+        family-names: "Zeng"
+      - given-names: "Yunze"
+        family-names: "Xiao"
+      - given-names: "Aosong"
+        family-names: "Feng"
+      - given-names: "Dairui"
+        family-names: "Liu"
+      - given-names: "Yun"
+        family-names: "Xing"
+      - given-names: "Junjue"
+        family-names: "Wang"
+      - given-names: "Fan"
+        family-names: "Gao"
+      - given-names: "Jinghui"
+        family-names: "Lu"
+      - given-names: "Yuang"
+        family-names: "Jiang"
+      - given-names: "Huitao"
+        family-names: "Li"
+      - given-names: "Xin"
+        family-names: "Li"
+      - given-names: "Kunyu"
+        family-names: "Yu"
+      - given-names: "Ruihai"
+        family-names: "Dong"
+      - given-names: "Shangding"
+        family-names: "Gu"
+      - given-names: "Yuekang"
+        family-names: "Li"
+      - given-names: "Xiaofei"
+        family-names: "Xie"
+      - given-names: "Felix"
+        family-names: "Juefei-Xu"
+      - given-names: "Foutse"
+        family-names: "Khomh"
+      - given-names: "Osamu"
+        family-names: "Yoshie"
+      - given-names: "Qingyu"
+        family-names: "Chen"
+      - given-names: "Douglas"
+        family-names: "Teodoro"
+      - given-names: "Nan"
+        family-names: "Liu"
+      - given-names: "Randy"
+        family-names: "Goebel"
+      - given-names: "Lei"
+        family-names: "Ma"
+      - given-names: "Edison"
+        family-names: "Marrese-Taylor"
+      - given-names: "Shijian"
+        family-names: "Lu"
+      - given-names: "Yusuke"
+        family-names: "Iwasawa"
+      - given-names: "Yutaka"
+        family-names: "Matsuo"
+      - given-names: "Irene"
+        family-names: "Li"
+    year: 2025
+    journal: "arXiv preprint arXiv:2503.10497"
+    url: "https://arxiv.org/abs/2503.10497"

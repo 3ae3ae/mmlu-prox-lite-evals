@@ -1,0 +1,105 @@
+# Evaluation protocol v1.
+# Fix everything in this file BEFORE looking at any main-run results.
+# Changing anything after the main run starts means a new protocol version (v2);
+# results from different versions are never mixed in one table.
+protocol_version: v1
+
+purpose:
+  # Within-model diagnosis. The analyses below were chosen before any results were seen.
+  question: >-
+    For each model, in which languages and in which subjects is it weak, relative to its own
+    performance in English and in other subjects?
+  primary_analyses:
+    - "language gap: accuracy in each language minus English, per model, paired on the same questions"
+    - "subject profile: accuracy per subject, per model, pooled over languages and per language"
+  exploratory_analyses:
+    - "language x subject cells, Benjamini-Hochberg corrected"
+    - "strict vs lenient gap per language (format-following failures)"
+  not_intended_for: >-
+    ranking or comparing models against each other; reasoning settings follow different
+    developer defaults by design
+
+harness:
+  name: lm-evaluation-harness
+  version: 0.4.13                  # pinned in pyproject.toml
+  task: mmlu_prox_lite_{lang}      # group of 14 subject subtasks per language
+  backend: local-chat-completions  # OpenAI-compatible chat API, used for every model
+  flags: [--apply_chat_template, --fewshot_as_multiturn false, --log_samples]
+  # Prompt text, the 5-shot chain-of-thought examples (first 5 validation questions of the
+  # same subject) and the answer regex come from the task configs unchanged.
+  # Each request is a system message (the task description) plus one user message holding the
+  # 5 worked examples and the test question. The task embeds each example's answer in its
+  # text, so multi-turn mode would only produce consecutive user messages, which some APIs reject.
+
+dataset:
+  repo: li-lab/MMLU-ProX-Lite
+  # lm-eval loads the dataset's main branch; scripts/run_eval.py refuses to run if it has
+  # moved away from this revision.
+  revision: e82aafb9460529687d3c7e51b401d8dd1dd309dd  # pinned 2026-10-09
+  license: MIT
+  eval_split: test  # 588 questions per language
+
+# 10 of the 29 MMLU-ProX languages. Fixed before the first main run; identical for every model.
+# English is the baseline for paired (same-question) language-gap analysis.
+languages: [en, zh, ja, ko, pt, de, id, ru, ar, sw]
+
+generation:
+  # Task defaults overridden for every model (via --gen_kwargs):
+  #   temperature 0.0 -> 1.0  every model's developer default or recommendation is 1.0, and
+  #                           several APIs reject or ignore other values
+  #   stop strings    -> none chat models end their turn by themselves, and a stop string such
+  #                           as "Q:" inside the reasoning would cut it off
+  #   max_gen_toks 2048 -> per-model max_tokens (reasoning tokens count toward it)
+  # Per model (configs/models/*.yaml): reasoning_effort, developer-recommended sampling, max_tokens.
+  # Reasoning effort rule: the developer's official API default; else the model card's
+  # recommendation; else the host's default. Exception: small open models (~30B: Gemma 4 31B,
+  # Qwen 3.8 27B) use their highest effort.
+  default_max_tokens: 64000
+
+scoring:
+  # strict (official): lm-eval exact_match with the task's "custom-extract" filter, i.e. the
+  #   per-language answer regex (ko: 답은 \(?([ABCDEFGHIJ])\)?입니다), first match.
+  # lenient (post-hoc, from the logged raw responses): strict, then the answer phrase of any of
+  #   the 29 languages, then the last standalone (A)-(J). strict vs lenient gap = format failures.
+  official: strict
+  extraction_failure_counts_as_wrong: true
+
+providers:
+  neuralwatt:
+    base_url: https://api.neuralwatt.com/v1/chat/completions
+    api_key_env: NEURALWATT_API_KEY
+    num_concurrent: 5  # plan slots: PAYG 3 (5 after $50 spent), Basic 3, Standard 5, Pro 10, Max 15
+    timeout_s: 7200    # per request, Flex hold time included
+  llmgateway:
+    base_url: https://api.llmgateway.io/v1/chat/completions
+    api_key_env: LLM_GATEWAY_API_KEY  # DevPass key; providers cannot be pinned
+    num_concurrent: 4
+    timeout_s: 660     # the gateway itself cuts non-streaming attempts at 10 min
+
+run:
+  order: sequential   # lm-eval's own order
+  resume: lm-eval --use_cache (SQLite cache per model; finished requests are not re-sent)
+  max_retries: 6      # lm-eval retries failed requests with exponential backoff
+  # Before each model's main run: scripts/run_eval.py --smoke (English, 1 question per
+  # subject = 14 requests) to confirm the API accepts every parameter.
+
+outputs:
+  # lm-eval writes results_*.json (scores + full run config) and samples_*.jsonl (prompt, raw
+  # response, extracted answer, score) to runs/<model>/. Per-request metadata that lm-eval does
+  # not log (serving provider, finish reason, token usage, energy, service tier) is available
+  # from the LLM Gateway Activity log and the Neuralwatt per-request usage API.
+  dir: runs/{model}/{main|smoke}
+  results_dir: results/{model}  # results_*.json of main runs are copied here and committed
+  hub:
+    # Main runs push results and samples with lm-eval's own uploader (--hf_hub_log_args), which
+    # also builds the dataset viewer configs. Private until reviewed; with public_repo false,
+    # lm-eval appends "-private" to the repo name. Needs a write-scoped HF_TOKEN in .env.
+    details_repo_name: mmlu-prox-lite-evals
+    public_repo: false
+
+analysis:
+  # Lite subjects are unbalanced (19 history ... 68 math questions per language):
+  # per-cell intervals are wide, so every reported difference carries a CI.
+  ci_method: paired_bootstrap_over_questions
+  bootstrap_resamples: 10000
+  multiple_comparisons: benjamini_hochberg  # for language x subject cells

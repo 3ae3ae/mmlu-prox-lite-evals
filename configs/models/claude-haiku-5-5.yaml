@@ -1,0 +1,11 @@
+name: Claude Haiku 5.5
+provider: llmgateway  # DevPass; routed to Anthropic or AWS Bedrock (cannot be pinned)
+model_id: claude-haiku-5-5
+reasoning:
+  effort: medium  # the gateway maps reasoning_effort to Anthropic's effort (adaptive thinking)
+  basis: official API default (adaptive thinking on; effort defaults to medium on Haiku 5.5)
+  source: https://platform.claude.com/docs/en/build-with-claude/effort
+sampling:
+  temperature: 1.0  # the API default; Haiku 5.5 rejects non-default sampling values
+max_tokens: 64000
+verified: 2026-10-09

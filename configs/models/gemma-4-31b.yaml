@@ -1,0 +1,16 @@
+name: Gemma 4 31B
+provider: neuralwatt
+model_id: gemma-4-31b  # no flex tier offered
+served_checkpoint: nvidia/Gemma-4-31B-IT-NVFP4  # 4-bit NVFP4 quantization; disclose in results
+reasoning:
+  effort: max  # Neuralwatt exposes only max (thinking on) / none (thinking off)
+  basis: >-
+    small-model highest-effort exception; by the developer-default rule thinking would be
+    off (the model card makes thinking opt-in via the <|think|> token)
+  source: https://huggingface.co/google/gemma-4-31b-it
+sampling:  # model card recommendation for all use cases
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 64
+max_tokens: 16384  # Neuralwatt output cap; truncated answers count as wrong
+verified: 2026-10-09

@@ -1,0 +1,13 @@
+name: GLM-5.3-Flash
+provider: neuralwatt
+model_id: glm-5.3-flash-flex  # flex tier: same checkpoint, ~35% cheaper, requests may queue
+served_checkpoint: zai-org/GLM-5.3-Flash  # Neuralwatt /v1/models metadata
+reasoning:
+  effort: max
+  basis: developer-recommended setting (reasoning always on; low/high/max; max recommended)
+  source: https://docs.z.ai/guides/vlm/glm-5.3-flash
+sampling:  # developer-recommended
+  temperature: 1.0
+  top_p: 0.95
+max_tokens: 64000
+verified: 2026-10-09
