@@ -91,11 +91,11 @@ outputs:
   dir: runs/{model}/{main|smoke}
   results_dir: results/{model}  # results_*.json of main runs are copied here and committed
   hub:
-    # Main runs push results and samples with lm-eval's own uploader (--hf_hub_log_args), which
-    # also builds the dataset viewer configs. Private until reviewed; with public_repo false,
-    # lm-eval appends "-private" to the repo name. Needs a write-scoped HF_TOKEN in .env.
-    details_repo_name: mmlu-prox-lite-evals
-    public_repo: false
+    # Uploaded after the runs with the Hugging Face CLI (`hf upload`), one folder per model,
+    # in the same layout lm-eval writes. lm-eval 0.4.13's own uploader (--hf_hub_log_args) was
+    # dropped: with datasets 5.1 its dataset-card step crashes, and the one run that used it
+    # uploaded only part of its sample files. Private until reviewed.
+    repo: 3ae3ae3ae/mmlu-prox-lite-evals-private
 
 analysis:
   # Lite subjects are unbalanced (19 history ... 68 math questions per language):

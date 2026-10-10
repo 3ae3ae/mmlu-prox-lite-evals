@@ -71,29 +71,17 @@ def main() -> int:
     ]
     if args.smoke:
         cmd += ["--limit", "1"]
-    else:
-        hub = protocol["outputs"]["hub"]
-        hub_args = {
-            "details_repo_name": hub["details_repo_name"],
-            "push_results_to_hub": True,
-            "push_samples_to_hub": True,
-            "public_repo": hub["public_repo"],
-        }
-        cmd += ["--hf_hub_log_args", json.dumps(hub_args)]
 
     print(shlex.join(cmd))
     if args.dry_run:
         return 0
 
-    # Non-empty values in .env take precedence over the shell environment
-    # (e.g. a write-scoped HF_TOKEN over a read-only one set in ~/.zshrc).
+    # Non-empty values in .env take precedence over the shell environment.
     env = dict(os.environ)
     env.update({k: v for k, v in dotenv_values(ROOT / ".env").items() if v})
     key = env.get(provider["api_key_env"])
     if not key:
         sys.exit(f"{provider['api_key_env']} is not set (see .env.example).")
-    if not args.smoke and not env.get("HF_TOKEN"):
-        sys.exit("HF_TOKEN is not set; main runs upload to Hugging Face (see .env.example).")
     out_dir.mkdir(parents=True, exist_ok=True)
     # local-chat-completions reads its bearer token from OPENAI_API_KEY.
     status = subprocess.call(cmd, env={**env, "OPENAI_API_KEY": key})

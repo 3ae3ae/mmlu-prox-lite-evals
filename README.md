@@ -111,10 +111,12 @@ cp .env.example .env   # LLM_GATEWAY_API_KEY, NEURALWATT_API_KEY, HF_TOKEN (writ
 uv run scripts/run_eval.py configs/models/qwen-3-8-27b.yaml --smoke
 
 # main run; rerunning the same command resumes from the request cache.
-# Uploads results and samples to a private Hugging Face dataset and copies
-# results_*.json into results/<model>/.
-uv run scripts/run_eval.py configs/models/qwen-3-8-27b.yaml
+# Copies results_*.json into results/<model>/ when it finishes.
+uv run scripts/run_eval.py configs/models/qwen-3-8-27b.yaml < /dev/null
 ```
+
+Raw outputs are uploaded afterwards with the Hugging Face CLI
+(`hf upload <repo> runs/<model>/main/<model_id> <model_id> --repo-type dataset`).
 
 `--dry-run` prints the exact `lm-eval run` command without sending requests.
 
