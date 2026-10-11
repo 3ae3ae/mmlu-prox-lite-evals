@@ -69,7 +69,11 @@ providers:
     base_url: https://api.neuralwatt.com/v1/chat/completions
     api_key_env: NEURALWATT_API_KEY
     num_concurrent: 5  # plan slots: PAYG 3 (5 after $50 spent), Basic 3, Standard 5, Pro 10, Max 15
-    timeout_s: 7200    # per request, Flex hold time included
+    # Per request, Flex hold time included. Lowered from 7200 on 2026-10-11: after the host's
+    # network changed, in-flight requests sat on dead connections until this timeout fired.
+    # 900 s covers ~25k-token responses at the observed ~30 tokens/s (longest seen so far:
+    # 13k); a longer response times out and is re-sent.
+    timeout_s: 900
   llmgateway:
     base_url: https://api.llmgateway.io/v1/chat/completions
     api_key_env: LLM_GATEWAY_API_KEY  # DevPass key; providers cannot be pinned
