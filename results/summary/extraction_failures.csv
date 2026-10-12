@@ -59,6 +59,16 @@ deepseek-v4-1-flash,id,7
 deepseek-v4-1-flash,ru,0
 deepseek-v4-1-flash,ar,1
 deepseek-v4-1-flash,sw,2
+glm-5-3,en,8
+glm-5-3,zh,13
+glm-5-3,ja,7
+glm-5-3,ko,8
+glm-5-3,pt,11
+glm-5-3,de,12
+glm-5-3,id,12
+glm-5-3,ru,13
+glm-5-3,ar,10
+glm-5-3,sw,15
 glm-5-3-flash,en,7
 glm-5-3-flash,zh,17
 glm-5-3-flash,ja,9
