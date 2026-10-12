@@ -1,6 +1,6 @@
 name: GLM-5.3
 provider: neuralwatt
-model_id: glm-5.3  # standard tier; the first requests ran on glm-5.3-flex (same checkpoint), see notes
+model_id: glm-5.3-flex  # flex tier: same checkpoint, ~35% cheaper, requests may queue
 served_checkpoint: zai-org/GLM-5.3  # fp8-native; Neuralwatt /v1/models metadata
 reasoning:
   effort: max
@@ -11,6 +11,7 @@ sampling:
 max_tokens: 64000  # model limit is 128K
 verified: 2026-10-09
 notes: >-
-  Flagship-class, not a lightweight model. Switched from the Flex tier (glm-5.3-flex) to the
-  standard tier on 2026-10-12 after the Neuralwatt plan was upgraded; both serve the same
-  checkpoint with the same settings, and requests answered on Flex were kept.
+  Flagship-class, not a lightweight model. On 2026-10-12 from 16:52 to 17:05 KST the run used
+  the standard tier (glm-5.3, same checkpoint and settings) and received 60 answers there. Long
+  standard-tier requests hit Cloudflare 524 timeouts that cascaded into concurrency 429s, so the
+  run went back to Flex. All other answers come from Flex.

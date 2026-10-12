@@ -1,6 +1,6 @@
 name: Qwen 3.8 27B
 provider: neuralwatt
-model_id: qwen-3.8-27b  # standard tier; the first requests ran on qwen-3.8-27b-flex (same checkpoint), see notes
+model_id: qwen-3.8-27b-flex  # flex tier: same checkpoint, ~35% cheaper, requests may queue
 served_checkpoint: Qwen/Qwen3.8-27B-FP8  # FP8; Neuralwatt /v1/models metadata
 reasoning:
   effort: xhigh
@@ -17,7 +17,3 @@ sampling:  # model card, thinking mode
   repetition_penalty: 1.0
 max_tokens: 64000  # Neuralwatt limit is 131,072
 verified: 2026-10-09
-notes: >-
-  Switched from the Flex tier (qwen-3.8-27b-flex) to the standard tier on 2026-10-12 after the
-  Neuralwatt plan was upgraded; both serve the same checkpoint with the same settings, and
-  requests answered on Flex were kept.
