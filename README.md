@@ -139,13 +139,14 @@ Neuralwatt publishes the exact Hugging Face checkpoint it serves, including quan
 | Model | Reasoning effort | Neuralwatt model ID | Hugging Face checkpoint | Max tokens |
 |---|---|---|---|---|
 | DeepSeek V4.1 Flash | `high` | `deepseek-v4.1-flash-flex` | [deepseek-ai/DeepSeek-V4.1-Flash](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash) | 64,000 |
-| GLM-5.3 † | `max` | `glm-5.3-flex` | [zai-org/GLM-5.3](https://huggingface.co/zai-org/GLM-5.3) (FP8-native) | 64,000 |
+| GLM-5.3 † | `max` | `glm-5.3-flex`, then `glm-5.3` | [zai-org/GLM-5.3](https://huggingface.co/zai-org/GLM-5.3) (FP8-native) | 64,000 |
 | GLM-5.3-Flash | `max` | `glm-5.3-flash-flex` | [zai-org/GLM-5.3-Flash](https://huggingface.co/zai-org/GLM-5.3-Flash) | 64,000 |
-| Qwen 3.8 27B | `xhigh` | `qwen-3.8-27b-flex` | [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) (FP8) | 64,000 |
+| Qwen 3.8 27B | `xhigh` | `qwen-3.8-27b-flex`, then `qwen-3.8-27b` | [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) (FP8) | 64,000 |
 | Gemma 4 31B | `max` (thinking on) | `gemma-4-31b` | [nvidia/Gemma-4-31B-IT-NVFP4](https://huggingface.co/nvidia/Gemma-4-31B-IT-NVFP4) (4-bit NVFP4) | 16,384 |
 
 IDs ending in `-flex` use Neuralwatt's Flex tier: the same checkpoint at a lower price, with
-requests that may queue. Gemma 4 31B has no Flex tier. Quantization can hurt non-Latin-script
+requests that may queue. Gemma 4 31B has no Flex tier. GLM-5.3 and Qwen 3.8 27B moved from Flex to
+the standard tier partway through their runs (see [Changes during the study](#changes-during-the-study)). Quantization can hurt non-Latin-script
 languages more than English ([Marchisio et al., 2024](https://arxiv.org/abs/2407.03211)), so
 results for quantized checkpoints describe that checkpoint, not the full-precision model.
 
@@ -192,6 +193,9 @@ None of these changed how a model is prompted or scored. Details are in the comm
 - **2026-10-11:** the Neuralwatt request timeout was lowered from 2 hours to 15 minutes, because
   requests in flight when the host's network changed hung until the timeout.
 - The order in which models were run changed several times for cost and scheduling reasons.
+- **2026-10-12:** after the Neuralwatt plan was upgraded, GLM-5.3 and Qwen 3.8 27B moved from the
+  Flex tier to the standard tier (same checkpoint and settings), and Neuralwatt requests went from
+  5 to 10 in parallel. Answers already received on Flex were kept: 853 for GLM-5.3 and 1,348 for Qwen.
 - **2026-10-12:** the lenient re-scoring was changed from the rule-based version in protocol v1
   (strict, then any language's answer phrase, then the last standalone `(A)`–`(J)`) to an LLM
   reading of the response's final answer with the OpenAI Decisions API. The change was made after
