@@ -76,9 +76,9 @@ providers:
                         # Pro since 2026-10-12.
     # Per request, Flex hold time included. Lowered from 7200 on 2026-10-11: after the host's
     # network changed, in-flight requests sat on dead connections until this timeout fired.
-    # 900 s covers ~25k-token responses at the observed ~30 tokens/s (longest seen so far:
-    # 13k); a longer response times out and is re-sent.
-    timeout_s: 900
+    # Raised from 900 to 1020 on 2026-10-12: the longest Qwen 3.8 27B request took 866 s on the
+    # server, before any Flex hold time. The GLM-5.3 run already in progress (longest 546 s) kept 900.
+    timeout_s: 1020
   llmgateway:
     base_url: https://api.llmgateway.io/v1/chat/completions
     api_key_env: LLM_GATEWAY_API_KEY  # DevPass key; providers cannot be pinned
