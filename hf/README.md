@@ -60,7 +60,7 @@ reasoning effort.
 added when they finish.
 
 Code, protocol, model settings and summary tables:
-[github.com/3ae3ae/MMLU-ProX-Lite](https://github.com/3ae3ae/MMLU-ProX-Lite).
+[github.com/3ae3ae/mmlu-prox-lite-evals](https://github.com/3ae3ae/mmlu-prox-lite-evals).
 
 ## Files
 
