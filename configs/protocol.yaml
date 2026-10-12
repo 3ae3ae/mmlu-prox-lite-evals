@@ -88,7 +88,9 @@ providers:
     api_key_env: NEURALWATT_API_KEY
     stream: true
     num_concurrent: 10  # shares the plan's 10 slots with the neuralwatt entry above
-    timeout_s: 1020
+    # Raised from 1020 on 2026-10-13: Qwen 3.8 27B generates ~40 tokens/s here, so a 64,000-token
+    # response needs ~1,600 s. Dead connections are caught by the relay's idle timeout instead.
+    timeout_s: 1800
   llmgateway:
     base_url: https://api.llmgateway.io/v1/chat/completions
     api_key_env: LLM_GATEWAY_API_KEY  # DevPass key; providers cannot be pinned
