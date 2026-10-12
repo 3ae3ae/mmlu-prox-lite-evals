@@ -193,8 +193,8 @@ None of these changed how a model is prompted or scored. Details are in the comm
 - **2026-10-11:** the Neuralwatt request timeout was lowered from 2 hours to 15 minutes, because
   requests in flight when the host's network changed hung until the timeout.
 - The order in which models were run changed several times for cost and scheduling reasons.
-- **2026-10-12:** after the Neuralwatt plan was upgraded, Neuralwatt requests went from 5 to 10 in
-  parallel. GLM-5.3 briefly ran on the standard tier (same checkpoint and settings) and received 60
+- **2026-10-12:** after the Neuralwatt plan was upgraded, Neuralwatt allowed 10 requests in
+  parallel instead of 5. From 17:42 KST, GLM-5.3 and Qwen 3.8 27B ran side by side with 5 each. GLM-5.3 briefly ran on the standard tier (same checkpoint and settings) and received 60
   answers there. Long standard-tier requests hit Cloudflare 524 timeouts that set off bursts of
   concurrency errors, so it returned to Flex after 13 minutes. Gemma 4 31B, which has no Flex tier,
   had the same timeouts.

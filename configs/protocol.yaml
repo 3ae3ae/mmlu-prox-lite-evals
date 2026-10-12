@@ -72,7 +72,8 @@ providers:
   neuralwatt:
     base_url: https://api.neuralwatt.com/v1/chat/completions
     api_key_env: NEURALWATT_API_KEY
-    num_concurrent: 10  # plan slots: PAYG 3 (5 after $50 spent), Basic 3, Standard 5, Pro 10, Max 15 (Pro since 2026-10-12)
+    num_concurrent: 5  # per model; plan slots: PAYG 3 (5 after $50 spent), Basic 3, Standard 5, Pro 10, Max 15.
+                       # Pro since 2026-10-12: two models run in parallel at 5 each.
     # Per request, Flex hold time included. Lowered from 7200 on 2026-10-11: after the host's
     # network changed, in-flight requests sat on dead connections until this timeout fired.
     # 900 s covers ~25k-token responses at the observed ~30 tokens/s (longest seen so far:
