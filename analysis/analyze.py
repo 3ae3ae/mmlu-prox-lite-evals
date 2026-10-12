@@ -28,7 +28,14 @@ REFERENCE = {"claude-sonnet-5-5", "gpt-6-1-sol", "glm-5-3"}
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def load_samples(result_path, stem, languages):
+def finished_models():
+    for stem in ORDER:
+        result_paths = list((ROOT / "runs" / stem / "main").glob("*/results_*.json"))
+        if result_paths:
+            yield stem, max(result_paths, key=lambda path: path.name)
+
+
+def load_samples(result_path, stem, languages, include_responses=False):
     timestamp = result_path.stem.removeprefix("results_")
     paths = sorted(result_path.parent.glob(f"samples_mmlu_prox_lite_*_{timestamp}.jsonl"))
     assert len(paths) == 140, f"{stem}: expected 140 sample files, found {len(paths)}"
@@ -56,7 +63,11 @@ def load_samples(result_path, stem, languages):
                     "question_id_src": row["doc"]["question_id_src"],
                     "exact_match": score,
                     "invalid": row["filtered_resps"][0] == "[invalid]",
+                    "gold": row["doc"]["answer"],
+                    "strict_pred": row["filtered_resps"][0],
                 })
+                if include_responses:
+                    records[-1].update(doc=row["doc"], response_text=row["resps"][0][0])
     subjects = {subject for _, subject in pairs}
     assert len(subjects) == 14 and pairs == {
         (language, subject) for language in languages for subject in subjects
@@ -85,6 +96,32 @@ def load_samples(result_path, stem, languages):
         f"{stem}: subject question counts differ across languages"
     )
     return data, counts["en"].to_dict()
+
+
+def load_lenient(stem, data):
+    path = ROOT / "results/lenient" / f"{stem}.jsonl"
+    expected = set(data.loc[data["exact_match"] == 0, ["language", "question_id_src"]]
+                   .itertuples(index=False, name=None))
+    records = []
+    try:
+        if path.exists():
+            with path.open(encoding="utf-8") as stream:
+                records = [json.loads(line) for line in stream]
+        keys = [(row["language"], row["question_id_src"]) for row in records]
+        if not path.exists() or set(keys) != expected or len(keys) != len(set(keys)):
+            print(f"{stem}: incomplete lenient coverage ({len(keys)} graded, "
+                  f"{len(expected)} strict-wrong; keys must match without duplicates); "
+                  "omitted from lenient tables.")
+            return None
+        grades = pd.DataFrame(records, columns=["language", "question_id_src", "choice", "refusal"])
+        scored = data.merge(grades, on=["language", "question_id_src"], how="left", validate="one_to_one")
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        print(f"{stem}: incomplete lenient coverage ({error}); omitted from lenient tables.")
+        return None
+    scored["rescued"] = (scored["exact_match"].eq(0) & scored["refusal"].eq(False)
+                         & scored["choice"].eq(scored["gold"]))
+    scored["lenient_correct"] = scored["exact_match"].eq(1) | scored["rescued"]
+    return scored
 
 
 def markdown_table(headers, rows):
@@ -128,14 +165,12 @@ def main():
     rng = np.random.default_rng(20261012)
     accuracy_records, gap_records, subject_records, failure_records = [], [], [], []
     accuracy_rows, gap_rows, compact_rows, subject_rows, failure_rows = [], [], [], [], []
+    lenient_records, rescue_records = [], []
+    lenient_rows, gain_rows, rescue_rows = [], [], []
     included = []
     question_counts = None
 
-    for stem in ORDER:
-        result_paths = list((ROOT / "runs" / stem / "main").glob("*/results_*.json"))
-        if not result_paths:
-            continue
-        result_path = max(result_paths, key=lambda path: path.name)
+    for stem, result_path in finished_models():
         data, counts = load_samples(result_path, stem, languages)
         if question_counts is None:
             question_counts = counts
@@ -152,6 +187,29 @@ def main():
         for language in languages:
             accuracy_records.append({"model": stem, "language": language, "accuracy": accuracies[language]})
             failure_records.append({"model": stem, "language": language, "invalid": int(failures[language])})
+
+        scored = load_lenient(stem, data)
+        if scored is not None:
+            lenient = scored.groupby("language")["lenient_correct"].mean() * 100
+            assert (lenient >= accuracies).all(), f"{stem}: lenient accuracy fell below strict accuracy"
+            gain = lenient - accuracies
+            lenient_rows.append([display] + [f"{lenient[lang]:.1f}" for lang in languages]
+                                + [f"{scored['lenient_correct'].mean() * 100:.1f}"])
+            gain_rows.append([display] + [f"{gain[lang]:+.1f}" for lang in languages])
+            for language in languages:
+                rows = scored.loc[scored["language"] == language]
+                lenient_records.append({"model": stem, "language": language,
+                                        "strict": accuracies[language], "lenient": lenient[language],
+                                        "gain_pp": gain[language]})
+                rescue_records.append({
+                    "model": stem, "language": language,
+                    "graded": int(rows["exact_match"].eq(0).sum()),
+                    "rescued_from_invalid": int((rows["rescued"] & rows["strict_pred"].eq("[invalid]")).sum()),
+                    "rescued_from_other_letter": int((rows["rescued"] & rows["strict_pred"].ne("[invalid]")).sum()),
+                })
+            rescue_rows.append([display, int(scored["exact_match"].eq(0).sum()),
+                                int((scored["rescued"] & scored["strict_pred"].eq("[invalid]")).sum()),
+                                int((scored["rescued"] & scored["strict_pred"].ne("[invalid]")).sum())])
 
         paired = data.pivot(index="question_id_src", columns="language", values="exact_match").sort_index()
         en = paired["en"].to_numpy()
@@ -184,6 +242,13 @@ def main():
     table_c = markdown_table(["Model"] + [subject.replace("_", " ") for subject in subjects],
                              subject_rows + [["Questions per language"] + [question_counts[s] for s in subjects]])
     table_d = markdown_table(["Model"] + languages, failure_rows)
+    no_lenient = "_No lenient re-scoring yet._"
+    table_lenient = markdown_table(["Model"] + languages + ["10-lang avg"], lenient_rows) if lenient_rows else no_lenient
+    table_gain = markdown_table(["Model"] + languages, gain_rows) if gain_rows else no_lenient
+    table_rescues = markdown_table(
+        ["Model", "Strict-wrong graded", "Rescued from [invalid]", "Rescued from another letter"],
+        rescue_rows,
+    ) if rescue_rows else no_lenient
     generated = f"_Generated by `analysis/analyze.py` on {date.today().isoformat()} from {len(included)} of 10 models"
     summary = "\n\n".join([
         "# MMLU-ProX-Lite results summary",
@@ -196,6 +261,12 @@ def main():
         table_c,
         "## Answer-extraction failures (`[invalid]`, out of 588 per language)",
         table_d,
+        "## Lenient accuracy (%) by language",
+        table_lenient,
+        "## Lenient minus strict (percentage points)",
+        table_gain,
+        "## Lenient re-scoring: strict-wrong answers read as correct",
+        table_rescues,
     ]) + "\n"
     # The README leads with the within-model comparisons and leaves out the cross-language average.
     table_a_readme = markdown_table(["Model"] + languages, [row[:-1] for row in accuracy_rows])
@@ -210,6 +281,11 @@ def main():
         table_c,
         "**Strict accuracy (%) by language.**",
         table_a_readme,
+        "**Lenient re-scoring: percentage points gained over strict.** A strict-wrong answer "
+        "counts as correct when the OpenAI Decisions API (`gpt-6-luna`), shown only the response "
+        "and the options, reads the response's own final answer as the gold option. Large gains "
+        "mean answers were given in a format the strict regex misses.",
+        table_gain if gain_rows else "_Lenient re-scoring has not run yet._",
     ]) + "\n\n"
 
     output_dir = ROOT / "results/summary"
@@ -221,12 +297,17 @@ def main():
         ("extraction_failures.csv", failure_records),
     ):
         pd.DataFrame(records).to_csv(output_dir / filename, index=False)
+    pd.DataFrame(lenient_records, columns=["model", "language", "strict", "lenient", "gain_pp"]).to_csv(
+        output_dir / "lenient_accuracy_by_language.csv", index=False)
+    pd.DataFrame(rescue_records, columns=["model", "language", "graded", "rescued_from_invalid",
+                                         "rescued_from_other_letter"]).to_csv(
+        output_dir / "lenient_rescues.csv", index=False)
     (ROOT / "results/summary.md").write_text(summary, encoding="utf-8")
     args.readme.write_bytes(prefix + readme_block.encode("utf-8") + suffix)
     print(f"Included {len(included)} of 10 models: {', '.join(included)}")
     print("All self-checks passed (140 files, 5880 rows, paired IDs, and harness accuracies per model).")
     print(f"Bootstrap: {resamples} resamples per gap; seed 20261012.")
-    print("Wrote results/summary.md and 4 CSVs in results/summary/.")
+    print("Wrote results/summary.md and 6 CSVs in results/summary/.")
     print(f"Updated results block in {args.readme}.")
     print(f"Elapsed: {perf_counter() - started:.2f} seconds.")
 

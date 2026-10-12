@@ -59,8 +59,12 @@ generation:
 scoring:
   # strict (official): lm-eval exact_match with the task's "custom-extract" filter, i.e. the
   #   per-language answer regex (ko: 답은 \(?([ABCDEFGHIJ])\)?입니다), first match.
-  # lenient (post-hoc, from the logged raw responses): strict, then the answer phrase of any of
-  #   the 29 languages, then the last standalone (A)-(J). strict vs lenient gap = format failures.
+  # lenient (post-hoc, from the logged raw responses): strict-correct stays correct; a strict-wrong
+  #   response counts as correct when the OpenAI Decisions API (gpt-6-luna), given only the
+  #   response and the options, reads the response's own final answer as the gold option.
+  #   Changed on 2026-10-12 from the rule-based version in protocol-v1 (strict, then any
+  #   language's answer phrase, then the last standalone (A)-(J)); see "Changes during the
+  #   study" in README.md. strict vs lenient gap = format failures.
   official: strict
   extraction_failure_counts_as_wrong: true
 
