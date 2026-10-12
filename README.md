@@ -4,8 +4,8 @@ Per-language and per-subject evaluation of recent LLMs on
 [MMLU-ProX-Lite](https://huggingface.co/datasets/li-lab/MMLU-ProX-Lite) (588 parallel questions × 14 subjects),
 in 10 of its 29 languages, run with [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness).
 
-> **Status:** work in progress. 8 of 10 models have finished; GLM-5.3 and Qwen 3.8 27B are
-> still running. The results below are regenerated as runs finish.
+> **Status:** work in progress. 8 of 10 models have finished. GLM-5.3 is still running, and Qwen
+> 3.8 27B is paused with 1,387 of 5,880 questions answered. The results below are regenerated as runs finish.
 
 ## Purpose
 
@@ -194,7 +194,8 @@ None of these changed how a model is prompted or scored. Details are in the comm
   requests in flight when the host's network changed hung until the timeout.
 - The order in which models were run changed several times for cost and scheduling reasons.
 - **2026-10-12:** after the Neuralwatt plan was upgraded, Neuralwatt allowed 10 requests in
-  parallel instead of 5. From 17:42 KST, GLM-5.3 and Qwen 3.8 27B ran side by side with 5 each. GLM-5.3 briefly ran on the standard tier (same checkpoint and settings) and received 60
+  parallel instead of 5. From 17:42 to 18:22 KST, GLM-5.3 and Qwen 3.8 27B ran side by side with
+  5 each. Qwen was then paused, and GLM-5.3 continued alone with all 10. GLM-5.3 briefly ran on the standard tier (same checkpoint and settings) and received 60
   answers there. Long standard-tier requests hit Cloudflare 524 timeouts that set off bursts of
   concurrency errors, so it returned to Flex after 13 minutes. Gemma 4 31B, which has no Flex tier,
   had the same timeouts.
