@@ -20,12 +20,8 @@ This is **not a leaderboard**. The core comparisons are across languages and acr
 
 Models are deliberately **not** ranked against each other: each runs at its own developer's
 default reasoning effort, so differences between models mix model quality with reasoning budget.
-The analyses were fixed in [`configs/protocol.yaml`](configs/protocol.yaml) before any results were seen.
 
 ## Results
-
-Read each row on its own. Every model runs at its own developer-default reasoning effort, so
-comparing rows mixes model quality with reasoning budget.
 
 <!-- results:start -->
 
@@ -118,9 +114,8 @@ the provider for each request from the ones listed, and the provider cannot be p
 | Claude Sonnet 5.5 † | `high` | `claude-sonnet-5-5` | Anthropic, Azure, AWS Bedrock | 64,000 |
 | GPT-6.1 Sol † | `medium` | `gpt-6.1-sol` | OpenAI, Azure | 64,000 |
 
-lm-eval's logs don't say which provider served a request, but the gateway dashboard counts
-requests by provider. All five closed-model runs took place on 2026-10-10 (KST), and that day's
-counts were:
+lm-eval doesn't log the serving provider. These are the gateway dashboard's request counts for
+2026-10-10 (KST), the day all five runs took place:
 
 | Model | Requests by provider |
 |---|---|
@@ -130,8 +125,8 @@ counts were:
 | Claude Sonnet 5.5 † | AWS Bedrock 5,864 · Anthropic 42 |
 | GPT-6.1 Sol † | Azure 5,941 |
 
-Each model was served almost entirely (≥ 99%) by one provider. The counts also include smoke
-tests, retried requests and other use of the same account that day.
+Each model was served almost entirely (≥ 99%) by one provider. The counts include smoke tests,
+retries and other use of the account that day.
 
 **Open-weight models**, served by [Neuralwatt](https://portal.neuralwatt.com/) on its own GPUs.
 Neuralwatt publishes the exact Hugging Face checkpoint it serves, including quantization.
@@ -145,8 +140,8 @@ Neuralwatt publishes the exact Hugging Face checkpoint it serves, including quan
 | Gemma 4 31B | `max` (thinking on) | `gemma-4-31b` | [nvidia/Gemma-4-31B-IT-NVFP4](https://huggingface.co/nvidia/Gemma-4-31B-IT-NVFP4) (4-bit NVFP4) | 16,384 |
 
 IDs ending in `-flex` use Neuralwatt's Flex tier: the same checkpoint at a lower price, with
-requests that may queue. Gemma 4 31B has no Flex tier, so it ran on the standard tier. 60 of GLM-5.3's
-answers also come from the standard tier (see [Changes during the study](#changes-during-the-study)). Quantization can hurt non-Latin-script
+requests that may queue. Gemma 4 31B has no Flex tier and ran on the standard tier, as did 60 of
+GLM-5.3's answers during a 13-minute switch on 2026-10-12. Quantization can hurt non-Latin-script
 languages more than English ([Marchisio et al., 2024](https://arxiv.org/abs/2407.03211)), so
 results for quantized checkpoints describe that checkpoint, not the full-precision model.
 
@@ -176,58 +171,35 @@ The full protocol is in [`configs/protocol.yaml`](configs/protocol.yaml) and was
   response counts as correct when the OpenAI Decisions API (`gpt-6-luna`), shown only the
   response and the answer options, reads the response's own final answer as the gold option. The
   grader is not shown the question, so it judges what the response says rather than solving the question.
-  Every grading decision is in [`results/lenient/`](results/lenient).
 - **Statistics:** language gaps are paired comparisons on the same questions (paired bootstrap CIs).
   Language × subject cells use Benjamini–Hochberg correction.
 
 ## Changes during the study
 
-None of these changed how a model is prompted or scored. Details are in the commit history.
-
 - **2026-10-10, before any main run:** Kimi K3 was dropped. At its default `max` effort it would
   have cost more than all other open-weight models combined, and it is flagship-class rather than lightweight.
 - **2026-10-10:** GPT-6.1 Sol and Claude Sonnet 5.5 were added as reference models. Sonnet 5.5 was
   dropped and re-added the same day. Both decisions were about cost, not results.
-- **2026-10-10:** lm-eval's built-in Hugging Face upload was turned off after it crashed;
-  raw outputs are uploaded with the `hf` CLI instead.
-- **2026-10-11:** the Neuralwatt request timeout was lowered from 2 hours to 15 minutes, because
-  requests in flight when the host's network changed hung until the timeout.
-- The order in which models were run changed several times for cost and scheduling reasons.
-- **2026-10-12:** after the Neuralwatt plan was upgraded, Neuralwatt allowed 10 requests in
-  parallel instead of 5. From 17:42 to 18:22 KST, GLM-5.3 and Qwen 3.8 27B ran side by side with
-  5 each. Qwen was then paused, and GLM-5.3 continued alone with all 10. GLM-5.3 briefly ran on the standard tier (same checkpoint and settings) and received 60
-  answers there. Long standard-tier requests hit Cloudflare 524 timeouts that set off bursts of
-  concurrency errors, so it returned to Flex after 13 minutes. Gemma 4 31B, which has no Flex tier,
-  had the same timeouts.
 - **2026-10-12:** the lenient re-scoring was changed from the rule-based version in protocol v1
   (strict, then any language's answer phrase, then the last standalone `(A)`–`(J)`) to an LLM
   reading of the response's final answer with the OpenAI Decisions API. The change was made after
   strict results for 8 models had been seen. The strict score, which is the official one, is unaffected.
-- **2026-10-12:** lowering Qwen 3.8 27B's reasoning effort from `xhigh` to `medium` was considered,
-  because `xhigh` was slow, and rejected. Qwen stays at `xhigh` and resumes from its cache. To decide,
-  its 1,387 `xhigh` answers so far (English, Chinese and part of Japanese) were scored and compared
-  with their output length. No per-language or per-subject result was looked at. The long responses
-  were mostly correct, and a `medium` run would have had to start over, saving little time. The 14
-  English smoke questions were also sent at both levels outside lm-eval, 30 requests in all. None of
-  those responses are part of the results.
+- **2026-10-12:** lowering Qwen 3.8 27B's reasoning effort from `xhigh` to `medium` to save time was
+  considered and rejected. To decide, its 1,387 `xhigh` answers so far (English, Chinese and part of
+  Japanese) were scored against their output length; no per-language or per-subject result was
+  looked at. The long responses were mostly correct, and a `medium` run would have had to start
+  over, saving little time.
 
 ## Limitations
 
 - Lite subjects are unbalanced (per language: 19 history … 68 math questions). Subject-level
   95% CIs can be as wide as ±22 points; treat single-cell differences as exploratory.
-- lm-eval logs only the response text, so truncated responses cannot be told apart from wrong
-  answers in the published logs. Max tokens are set generously to keep truncation rare. For
-  Neuralwatt-served models, the per-run truncation rate is available from Neuralwatt's usage API
-  (`finish_reason` per request), but it cannot be linked to individual questions.
+- lm-eval logs only the final response text, not the reasoning or the finish reason, so a
+  truncated response looks like a wrong answer. Max tokens are set generously to keep truncation rare.
 - Averages are over the 10 evaluated languages and are not comparable to 29-language averages reported elsewhere.
 - API models change behind stable names; result files carry their run timestamp.
-- Network changes and provider errors interrupted several runs, and some requests failed and
-  were retried. Interrupted runs resumed from lm-eval's request cache without re-sending requests
-  whose responses had arrived. Failed or interrupted requests were sent again, and only the
-  response that arrived is recorded.
-- The provider behind each individual closed-model request is unknown; only daily counts per
-  provider are available (see [Models](#models)).
-- Reasoning settings differ across models by design, so cross-model comparisons are not meaningful.
+- Interrupted runs resumed from lm-eval's request cache. Failed requests were sent again, and only
+  the response that arrived is recorded.
 
 ## Repository layout
 
