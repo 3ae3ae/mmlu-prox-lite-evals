@@ -3,6 +3,7 @@
 import argparse
 from datetime import date
 import json
+from math import comb
 from pathlib import Path
 import re
 from time import perf_counter
@@ -131,6 +132,23 @@ def markdown_table(headers, rows):
     return "\n".join([line(headers), line(["---"] * len(headers))] + [line(row) for row in rows])
 
 
+def mcnemar(b, c):
+    discordant = b + c
+    if discordant == 0:
+        return 1.0
+    return min(1.0, 2 * sum(comb(discordant, k) for k in range(min(b, c) + 1)) / 2 ** discordant)
+
+
+def benjamini_hochberg(p_values):
+    p_values = np.asarray(p_values, dtype=float)
+    order = np.argsort(p_values)
+    adjusted = p_values[order] * len(p_values) / np.arange(1, len(p_values) + 1)
+    adjusted = np.minimum.accumulate(adjusted[::-1])[::-1].clip(max=1)
+    q_values = np.empty_like(p_values)
+    q_values[order] = adjusted
+    return q_values
+
+
 def readme_sections(path):
     # Work in bytes so text and line endings outside the block stay untouched.
     lines = path.read_bytes().splitlines(keepends=True)
@@ -162,11 +180,19 @@ def main():
         "Protocol must list 10 distinct languages, with English first"
     )
     resamples = protocol["analysis"]["bootstrap_resamples"]
+    assert mcnemar(0, 5) == 0.0625
+    assert mcnemar(3, 3) == 1.0
+    assert mcnemar(0, 0) == 1.0
+    assert np.allclose(benjamini_hochberg([0.01, 0.04, 0.03, 0.2]),
+                       [0.04, 0.04 / 0.75, 0.04 / 0.75, 0.2], rtol=0, atol=1e-9)
     rng = np.random.default_rng(20261012)
+    cell_rng = np.random.default_rng(20261012)
     accuracy_records, gap_records, subject_records, failure_records = [], [], [], []
     accuracy_rows, gap_rows, compact_rows, subject_rows, failure_rows = [], [], [], [], []
     lenient_records, rescue_records = [], []
     lenient_rows, gain_rows, rescue_rows = [], [], []
+    cell_accuracy_records, cell_gap_records = [], []
+    cell_accuracy_tables, cell_gap_rows, cell_compact_rows = [], [], []
     included = []
     question_counts = None
 
@@ -234,6 +260,66 @@ def main():
             subject_records.append({"model": stem, "subject": subject, "accuracy": subject_accuracies[subject],
                                     "n_questions": question_counts[subject]})
 
+        cells = data.groupby(["language", "subject"])["exact_match"].agg(n="size", accuracy="mean")
+        subject_pairs = {
+            subject: data.loc[data["subject"] == subject].pivot(
+                index="question_id_src", columns="language", values="exact_match").sort_index()
+            for subject in subjects
+        }
+        cell_rows, model_gaps = [], []
+        for language in languages:
+            language_cells = cells.loc[language]
+            assert abs(np.average(language_cells["accuracy"], weights=language_cells["n"])
+                       - accuracies[language] / 100) <= 1e-12, (
+                f"{stem}/{language}: weighted cell accuracy differs from overall accuracy"
+            )
+            cell_rows.append([language] + [f"{language_cells.loc[s, 'accuracy'] * 100:.1f}" for s in subjects])
+            for subject in subjects:
+                cell = language_cells.loc[subject]
+                n = int(cell["n"])
+                assert n == question_counts[subject], f"{stem}/{language}/{subject}: cell question count differs"
+                cell_accuracy_records.append({"model": stem, "language": language, "subject": subject,
+                                              "n": n, "accuracy": cell["accuracy"] * 100})
+                cell_paired = subject_pairs[subject]
+                assert len(cell_paired) == n and not cell_paired.isna().any().any(), (
+                    f"{stem}/{subject}: subject question_id_src sets differ across languages"
+                )
+                if language == "en":
+                    continue
+                en = cell_paired["en"].to_numpy()
+                lang = cell_paired[language].to_numpy()
+                idx = cell_rng.integers(0, n, size=(resamples, n))
+                diffs = (lang[idx] - en[idx]).mean(axis=1) * 100
+                ci_low, ci_high = np.percentile(diffs, [2.5, 97.5])
+                b = int(((en == 1) & (lang == 0)).sum())
+                c = int(((en == 0) & (lang == 1)).sum())
+                model_gaps.append({
+                    "model": stem, "language": language, "subject": subject, "n": n,
+                    "en_accuracy": en.mean() * 100, "accuracy": lang.mean() * 100,
+                    "gap_pp": (lang.mean() - en.mean()) * 100,
+                    "ci_low_pp": ci_low, "ci_high_pp": ci_high,
+                    "en_only_correct": b, "lang_only_correct": c, "p_mcnemar": mcnemar(b, c),
+                })
+        assert len(model_gaps) == 126, f"{stem}: expected 126 language × subject gaps"
+        q_values = benjamini_hochberg([row["p_mcnemar"] for row in model_gaps])
+        for row, q in zip(model_gaps, q_values):
+            assert q >= row["p_mcnemar"], f"{stem}: BH q-value is below its p-value"
+            row["q_bh"] = q
+        cell_gap_records.extend(model_gaps)
+        cell_accuracy_tables.append("\n\n".join([
+            f"### {display}",
+            markdown_table(["Language"] + [subject.replace("_", " ") for subject in subjects], cell_rows),
+        ]))
+        significant = sorted((row for row in model_gaps if row["q_bh"] < 0.05), key=lambda row: row["gap_pp"])
+        for row in significant:
+            cell_gap_rows.append([display, row["language"], row["subject"].replace("_", " "),
+                                  f"{row['gap_pp']:+.1f}", f"[{row['ci_low_pp']:.1f}, {row['ci_high_pp']:.1f}]",
+                                  f"{row['q_bh']:.3g}"])
+        cell_compact_rows.append([display, ", ".join(
+            f"{row['language']} · {row['subject'].replace('_', ' ')} {row['gap_pp']:+.1f}"
+            for row in significant
+        ) if significant else "none"])
+
     assert included, "No finished main runs found; subject question counts cannot be determined"
     subjects = sorted(question_counts)
     table_a = markdown_table(["Model"] + languages + ["10-lang avg"], accuracy_rows)
@@ -249,6 +335,9 @@ def main():
         ["Model", "Strict-wrong graded", "Rescued from [invalid]", "Rescued from another letter"],
         rescue_rows,
     ) if rescue_rows else no_lenient
+    table_cell_gaps = markdown_table(["Model", "Language", "Subject", "Gap (pp)", "95% CI", "q"],
+                                    cell_gap_rows) if cell_gap_rows else "No cell has q < 0.05."
+    table_cell_compact = markdown_table(["Model", "Cells (language · subject, gap)"], cell_compact_rows)
     generated = f"_Generated by `analysis/analyze.py` on {date.today().isoformat()} from {len(included)} of 10 models"
     summary = "\n\n".join([
         "# MMLU-ProX-Lite results summary",
@@ -267,6 +356,16 @@ def main():
         table_gain,
         "## Lenient re-scoring: strict-wrong answers read as correct",
         table_rescues,
+        "## Strict accuracy (%) by language and subject",
+        "One table per model. Each cell holds that subject's questions in that language (19 to 68).",
+        "\n\n".join(cell_accuracy_tables),
+        "## Language × subject gaps vs. English (exploratory)",
+        "Each cell is the model's accuracy in that language minus its own English accuracy on the same "
+        "questions of that subject, in percentage points, with a 95% paired bootstrap CI. p-values are "
+        "exact McNemar tests on the paired answers; q-values apply Benjamini–Hochberg correction across "
+        "each model's 126 cells. Only cells with q < 0.05 are listed; every cell is in "
+        "[`summary/language_subject_gap.csv`](summary/language_subject_gap.csv).",
+        table_cell_gaps,
     ]) + "\n"
     # The README leads with the within-model comparisons and leaves out the cross-language average.
     table_a_readme = markdown_table(["Model"] + languages, [row[:-1] for row in accuracy_rows])
@@ -279,6 +378,11 @@ def main():
         "**Strict accuracy (%) by subject, pooled over the 10 languages.** The last row is the "
         "number of questions per subject in each language; small subjects are noisy.",
         table_c,
+        "**Language × subject cells that differ from English (exploratory).** A cell is listed when its "
+        "gap from the same subject in English survives Benjamini–Hochberg correction (q < 0.05) across "
+        "that model's 126 cells, using exact McNemar tests. Gaps are in percentage points; every cell is "
+        "in [`results/summary/language_subject_gap.csv`](results/summary/language_subject_gap.csv).",
+        table_cell_compact,
         "**Strict accuracy (%) by language.**",
         table_a_readme,
         "**Lenient re-scoring: percentage points gained over strict.** A strict-wrong answer "
@@ -295,6 +399,8 @@ def main():
         ("language_gap.csv", gap_records),
         ("accuracy_by_subject.csv", subject_records),
         ("extraction_failures.csv", failure_records),
+        ("accuracy_by_language_subject.csv", cell_accuracy_records),
+        ("language_subject_gap.csv", cell_gap_records),
     ):
         pd.DataFrame(records).to_csv(output_dir / filename, index=False)
     pd.DataFrame(lenient_records, columns=["model", "language", "strict", "lenient", "gain_pp"]).to_csv(
@@ -307,7 +413,7 @@ def main():
     print(f"Included {len(included)} of 10 models: {', '.join(included)}")
     print("All self-checks passed (140 files, 5880 rows, paired IDs, and harness accuracies per model).")
     print(f"Bootstrap: {resamples} resamples per gap; seed 20261012.")
-    print("Wrote results/summary.md and 6 CSVs in results/summary/.")
+    print("Wrote results/summary.md and 8 CSVs in results/summary/.")
     print(f"Updated results block in {args.readme}.")
     print(f"Elapsed: {perf_counter() - started:.2f} seconds.")
 
