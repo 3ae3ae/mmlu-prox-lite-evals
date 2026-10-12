@@ -9,6 +9,7 @@ abstract: >-
 authors:
   - alias: 3ae3ae
 license: MIT
+repository-code: "https://github.com/3ae3ae/MMLU-ProX-Lite"
 keywords:
   - evaluation
   - multilingual
