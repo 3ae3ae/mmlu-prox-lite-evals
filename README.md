@@ -4,8 +4,8 @@ Per-language and per-subject evaluation of recent LLMs on
 [MMLU-ProX-Lite](https://huggingface.co/datasets/li-lab/MMLU-ProX-Lite) (588 parallel questions × 14 subjects),
 in 10 of its 29 languages, run with [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness).
 
-> **Status:** work in progress. 8 of 10 models have finished. GLM-5.3 is still running, and Qwen
-> 3.8 27B is paused with 1,387 of 5,880 questions answered. The results below are regenerated as runs finish.
+> **Status:** work in progress. 8 of 10 models have finished. GLM-5.3 is still running. Qwen 3.8
+> 27B is paused with 1,387 of 5,880 questions answered and resumes after GLM-5.3 finishes. The results below are regenerated as runs finish.
 
 ## Purpose
 
@@ -203,6 +203,13 @@ None of these changed how a model is prompted or scored. Details are in the comm
   (strict, then any language's answer phrase, then the last standalone `(A)`–`(J)`) to an LLM
   reading of the response's final answer with the OpenAI Decisions API. The change was made after
   strict results for 8 models had been seen. The strict score, which is the official one, is unaffected.
+- **2026-10-12:** lowering Qwen 3.8 27B's reasoning effort from `xhigh` to `medium` was considered,
+  because `xhigh` was slow, and rejected. Qwen stays at `xhigh` and resumes from its cache. To decide,
+  its 1,387 `xhigh` answers so far (English, Chinese and part of Japanese) were scored and compared
+  with their output length. No per-language or per-subject result was looked at. The long responses
+  were mostly correct, and a `medium` run would have had to start over, saving little time. The 14
+  English smoke questions were also sent at both levels outside lm-eval, 30 requests in all. None of
+  those responses are part of the results.
 
 ## Limitations
 
