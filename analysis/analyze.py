@@ -197,13 +197,19 @@ def main():
         "## Answer-extraction failures (`[invalid]`, out of 588 per language)",
         table_d,
     ]) + "\n"
+    # The README leads with the within-model comparisons and leaves out the cross-language average.
+    table_a_readme = markdown_table(["Model"] + languages, [row[:-1] for row in accuracy_rows])
     readme_block = "\n" + "\n\n".join([
         generated + "; models still running are not listed._",
-        "**Strict accuracy (%) by language**",
-        table_a,
-        "**Language gap vs. English (percentage points).** `*` marks a 95% paired-bootstrap "
-        "confidence interval that excludes zero; see [`results/summary.md`](results/summary.md) for the intervals.",
+        "**Language gap vs. English (percentage points).** Each model against its own English "
+        "score on the same questions. `*` marks a 95% paired-bootstrap confidence interval that "
+        "excludes zero; the intervals are in [`results/summary.md`](results/summary.md).",
         table_b_compact,
+        "**Strict accuracy (%) by subject, pooled over the 10 languages.** The last row is the "
+        "number of questions per subject in each language; small subjects are noisy.",
+        table_c,
+        "**Strict accuracy (%) by language.**",
+        table_a_readme,
     ]) + "\n\n"
 
     output_dir = ROOT / "results/summary"
