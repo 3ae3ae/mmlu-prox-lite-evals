@@ -1,6 +1,6 @@
 name: Qwen 3.8 27B
-provider: neuralwatt
-model_id: qwen-3.8-27b-flex  # flex tier: same checkpoint, ~35% cheaper, requests may queue
+provider: neuralwatt_standard  # through scripts/stream_relay.py
+model_id: qwen-3.8-27b  # standard tier; earlier answers came from Flex (qwen-3.8-27b-flex), see notes
 served_checkpoint: Qwen/Qwen3.8-27B-FP8  # FP8; Neuralwatt /v1/models metadata
 reasoning:
   effort: xhigh
@@ -17,3 +17,7 @@ sampling:  # model card, thinking mode
   repetition_penalty: 1.0
 max_tokens: 64000  # Neuralwatt limit is 131,072
 verified: 2026-10-09
+notes: >-
+  Its first 1,387 answers came from the Flex tier (qwen-3.8-27b-flex). The remaining answers come
+  from the standard tier through scripts/stream_relay.py, starting after GLM-5.3 finished. Same
+  checkpoint and settings throughout.

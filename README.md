@@ -134,14 +134,15 @@ Neuralwatt publishes the exact Hugging Face checkpoint it serves, including quan
 | Model | Reasoning effort | Neuralwatt model ID | Hugging Face checkpoint | Max tokens |
 |---|---|---|---|---|
 | DeepSeek V4.1 Flash | `high` | `deepseek-v4.1-flash-flex` | [deepseek-ai/DeepSeek-V4.1-Flash](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash) | 64,000 |
-| GLM-5.3 † | `max` | `glm-5.3-flex` | [zai-org/GLM-5.3](https://huggingface.co/zai-org/GLM-5.3) (FP8-native) | 64,000 |
+| GLM-5.3 † | `max` | `glm-5.3-flex`, then `glm-5.3` | [zai-org/GLM-5.3](https://huggingface.co/zai-org/GLM-5.3) (FP8-native) | 64,000 |
 | GLM-5.3-Flash | `max` | `glm-5.3-flash-flex` | [zai-org/GLM-5.3-Flash](https://huggingface.co/zai-org/GLM-5.3-Flash) | 64,000 |
-| Qwen 3.8 27B | `xhigh` | `qwen-3.8-27b-flex` | [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) (FP8) | 64,000 |
+| Qwen 3.8 27B | `xhigh` | `qwen-3.8-27b-flex`, then `qwen-3.8-27b` | [Qwen/Qwen3.8-27B-FP8](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) (FP8) | 64,000 |
 | Gemma 4 31B | `max` (thinking on) | `gemma-4-31b` | [nvidia/Gemma-4-31B-IT-NVFP4](https://huggingface.co/nvidia/Gemma-4-31B-IT-NVFP4) (4-bit NVFP4) | 16,384 |
 
 IDs ending in `-flex` use Neuralwatt's Flex tier: the same checkpoint at a lower price, with
-requests that may queue. Gemma 4 31B has no Flex tier and ran on the standard tier, as did 60 of
-GLM-5.3's answers during a 13-minute switch on 2026-10-12. Quantization can hurt non-Latin-script
+requests that may queue. Gemma 4 31B has no Flex tier and ran on the standard tier. GLM-5.3 and
+Qwen 3.8 27B moved from Flex to the standard tier partway through their runs (see
+[Changes during the study](#changes-during-the-study)). Quantization can hurt non-Latin-script
 languages more than English ([Marchisio et al., 2024](https://arxiv.org/abs/2407.03211)), so
 results for quantized checkpoints describe that checkpoint, not the full-precision model.
 
@@ -184,6 +185,12 @@ The full protocol is in [`configs/protocol.yaml`](configs/protocol.yaml) and was
   (strict, then any language's answer phrase, then the last standalone `(A)`–`(J)`) to an LLM
   reading of the response's final answer with the OpenAI Decisions API. The change was made after
   strict results for 8 models had been seen. The strict score, which is the official one, is unaffected.
+- **2026-10-12:** GLM-5.3 and Qwen 3.8 27B moved from Neuralwatt's Flex tier to its standard tier,
+  which serves the same checkpoint about twice as fast. GLM-5.3 moved after 2,936 answers (60 of
+  them from an earlier 13-minute attempt on the standard tier) and Qwen 3.8 27B after 1,387. The
+  standard tier's Cloudflare front end cuts responses that take over 100 s, so these requests are
+  streamed through a small relay, [`scripts/stream_relay.py`](scripts/stream_relay.py), which joins
+  the streamed answer text and hands it to lm-eval. Prompts, settings and scoring are unchanged.
 
 ## Limitations
 
@@ -202,6 +209,7 @@ The full protocol is in [`configs/protocol.yaml`](configs/protocol.yaml) and was
 configs/protocol.yaml    evaluation protocol v1
 configs/models/          one file per model: ID, reasoning effort, sampling, max tokens, sources
 scripts/run_eval.py      turns a model config into an `lm-eval run` command and runs it
+scripts/stream_relay.py  streams requests for API routes that cut long non-streaming responses
 analysis/analyze.py      builds results/summary.md and the tables in this README
 analysis/lenient.py      lenient re-scoring with the OpenAI Decisions API
 results/lenient/         every lenient grading decision, one JSON line per strict-wrong answer

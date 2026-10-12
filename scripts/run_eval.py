@@ -43,9 +43,15 @@ def main() -> int:
     languages = ["en"] if args.smoke else protocol["languages"]
     out_dir = ROOT / "runs" / args.model_config.stem / ("smoke" if args.smoke else "main")
 
+    base_url = provider["base_url"]
+    if provider.get("stream") and not args.dry_run:
+        import stream_relay  # see its docstring
+
+        base_url = stream_relay.start(base_url)
+
     model_args = {
         "model": model["model_id"],
-        "base_url": provider["base_url"],
+        "base_url": base_url,
         "num_concurrent": provider["num_concurrent"],
         "max_retries": protocol["run"]["max_retries"],
         "timeout": provider["timeout_s"],
