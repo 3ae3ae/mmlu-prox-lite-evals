@@ -184,11 +184,6 @@ The full protocol is in [`configs/protocol.yaml`](configs/protocol.yaml) and was
   (strict, then any language's answer phrase, then the last standalone `(A)`–`(J)`) to an LLM
   reading of the response's final answer with the OpenAI Decisions API. The change was made after
   strict results for 8 models had been seen. The strict score, which is the official one, is unaffected.
-- **2026-10-12:** lowering Qwen 3.8 27B's reasoning effort from `xhigh` to `medium` to save time was
-  considered and rejected. To decide, its 1,387 `xhigh` answers so far (English, Chinese and part of
-  Japanese) were scored against their output length; no per-language or per-subject result was
-  looked at. The long responses were mostly correct, and a `medium` run would have had to start
-  over, saving little time.
 
 ## Limitations
 
