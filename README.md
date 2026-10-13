@@ -215,8 +215,9 @@ The full protocol is in [`configs/protocol.yaml`](configs/protocol.yaml) and was
   reading of the response's final answer with the OpenAI Decisions API. The change was made after
   strict results for 8 models had been seen. The strict score, which is the official one, is unaffected.
 - **2026-10-12:** GLM-5.3 and Qwen 3.8 27B moved from Neuralwatt's Flex tier to its standard tier,
-  which serves the same checkpoint about twice as fast. GLM-5.3 moved after 2,936 answers (60 of
-  them from an earlier 13-minute attempt on the standard tier) and Qwen 3.8 27B after 1,387. The
+  which serves the same checkpoint, to finish sooner. GLM-5.3 generated about twice as fast there;
+  Qwen 3.8 27B at about the same speed. GLM-5.3 moved after 2,936 answers (60 of them from an
+  earlier 13-minute attempt on the standard tier) and Qwen 3.8 27B after 1,387. The
   standard tier's Cloudflare front end cuts responses that take over 100 s, so these requests are
   streamed through a small relay, [`scripts/stream_relay.py`](scripts/stream_relay.py), which joins
   the streamed answer text and hands it to lm-eval. Prompts, settings and scoring are unchanged.
@@ -234,7 +235,10 @@ The full protocol is in [`configs/protocol.yaml`](configs/protocol.yaml) and was
 - Averages are over the 10 evaluated languages and are not comparable to 29-language averages reported elsewhere.
 - API models change behind stable names; result files carry their run timestamp.
 - Interrupted runs resumed from lm-eval's request cache. Failed requests were sent again, and only
-  the response that arrived is recorded.
+  the response that arrived is recorded. lm-eval caches an empty response only when a run
+  finishes, so a resumed run also re-sent the questions that had come back empty before the
+  interruption. Models with more interruptions (GLM-5.3, Qwen 3.8 27B) got more second tries at
+  questions they had run out of tokens on.
 
 ## Repository layout
 
