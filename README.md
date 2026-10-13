@@ -278,14 +278,38 @@ Raw outputs are uploaded afterwards with the Hugging Face CLI
 
 ## Citation
 
-This project evaluates models on MMLU-ProX. Please cite the original benchmark:
+To cite this evaluation, use **Cite this repository** on GitHub (generated from
+[`CITATION.cff`](CITATION.cff)) or:
 
 ```bibtex
-@article{xuan2025mmlu,
+@misc{3ae3ae2026mmluproxlite,
+  author       = {3ae3ae},
+  title        = {{MMLU-ProX-Lite}: Where Do Recent Lightweight {LLMs} Break Down?},
+  year         = {2026},
+  howpublished = {\url{https://github.com/3ae3ae/mmlu-prox-lite-evals}},
+  note         = {Raw outputs: \url{https://huggingface.co/datasets/3ae3ae3ae/mmlu-prox-lite-evals}}
+}
+```
+
+Please also cite the benchmark and the evaluation harness:
+
+```bibtex
+@article{xuan2025mmluprox,
   title={Mmlu-prox: A multilingual benchmark for advanced large language model evaluation},
   author={Weihao Xuan and Rui Yang and Heli Qi and Qingcheng Zeng and Yunze Xiao and Aosong Feng and Dairui Liu and Yun Xing and Junjue Wang and Fan Gao and Jinghui Lu and Yuang Jiang and Huitao Li and Xin Li and Kunyu Yu and Ruihai Dong and Shangding Gu and Yuekang Li and Xiaofei Xie and Felix Juefei-Xu and Foutse Khomh and Osamu Yoshie and Qingyu Chen and Douglas Teodoro and Nan Liu and Randy Goebel and Lei Ma and Edison Marrese-Taylor and Shijian Lu and Yusuke Iwasawa and Yutaka Matsuo and Irene Li},
   journal={arXiv preprint arXiv:2503.10497},
   year={2025}
+}
+
+@misc{eval-harness,
+  author       = {Gao, Leo and Tow, Jonathan and Abbasi, Baber and Biderman, Stella and Black, Sid and DiPofi, Anthony and Foster, Charles and Golding, Laurence and Hsu, Jeffrey and Le Noac'h, Alain and Li, Haonan and McDonell, Kyle and Muennighoff, Niklas and Ociepa, Chris and Phang, Jason and Reynolds, Laria and Schoelkopf, Hailey and Skowron, Aviya and Sutawika, Lintang and Tang, Eric and Thite, Anish and Wang, Ben and Wang, Kevin and Zou, Andy},
+  title        = {The Language Model Evaluation Harness},
+  month        = 07,
+  year         = 2024,
+  publisher    = {Zenodo},
+  version      = {v0.4.3},
+  doi          = {10.5281/zenodo.12608602},
+  url          = {https://zenodo.org/records/12608602}
 }
 ```
 

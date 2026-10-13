@@ -10,10 +10,13 @@ authors:
   - alias: 3ae3ae
 license: MIT
 repository-code: "https://github.com/3ae3ae/mmlu-prox-lite-evals"
+url: "https://huggingface.co/datasets/3ae3ae3ae/mmlu-prox-lite-evals"
+date-released: 2026-10-13
 keywords:
   - evaluation
   - multilingual
   - MMLU-ProX
+  - lm-evaluation-harness
 references:
   - type: article
     title: "MMLU-ProX: A Multilingual Benchmark for Advanced Large Language Model Evaluation"
@@ -85,3 +88,58 @@ references:
     year: 2025
     journal: "arXiv preprint arXiv:2503.10497"
     url: "https://arxiv.org/abs/2503.10497"
+  - type: software
+    title: "The Language Model Evaluation Harness"
+    authors:
+      - given-names: "Leo"
+        family-names: "Gao"
+      - given-names: "Jonathan"
+        family-names: "Tow"
+      - given-names: "Baber"
+        family-names: "Abbasi"
+      - given-names: "Stella"
+        family-names: "Biderman"
+      - given-names: "Sid"
+        family-names: "Black"
+      - given-names: "Anthony"
+        family-names: "DiPofi"
+      - given-names: "Charles"
+        family-names: "Foster"
+      - given-names: "Laurence"
+        family-names: "Golding"
+      - given-names: "Jeffrey"
+        family-names: "Hsu"
+      - given-names: "Alain"
+        family-names: "Le Noac'h"
+      - given-names: "Haonan"
+        family-names: "Li"
+      - given-names: "Kyle"
+        family-names: "McDonell"
+      - given-names: "Niklas"
+        family-names: "Muennighoff"
+      - given-names: "Chris"
+        family-names: "Ociepa"
+      - given-names: "Jason"
+        family-names: "Phang"
+      - given-names: "Laria"
+        family-names: "Reynolds"
+      - given-names: "Hailey"
+        family-names: "Schoelkopf"
+      - given-names: "Aviya"
+        family-names: "Skowron"
+      - given-names: "Lintang"
+        family-names: "Sutawika"
+      - given-names: "Eric"
+        family-names: "Tang"
+      - given-names: "Anish"
+        family-names: "Thite"
+      - given-names: "Ben"
+        family-names: "Wang"
+      - given-names: "Kevin"
+        family-names: "Wang"
+      - given-names: "Andy"
+        family-names: "Zou"
+    year: 2024
+    version: "v0.4.3"
+    doi: "10.5281/zenodo.12608602"
+    url: "https://zenodo.org/records/12608602"

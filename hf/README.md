@@ -3,6 +3,8 @@ license: mit
 pretty_name: MMLU-ProX-Lite Evaluation Outputs
 language: [en, zh, ja, ko, pt, de, id, ru, ar, sw]
 task_categories: [question-answering]
+multilinguality: [multilingual]
+source_datasets: [li-lab/MMLU-ProX-Lite]
 size_categories: [10K<n<100K]
 tags:
   - evaluation
@@ -106,4 +108,21 @@ Each model is also available as a dataset config (split `test`) in the viewer.
 
 ## Citation
 
-Please cite MMLU-ProX (`xuan2025mmlu`, arXiv:2503.10497) when using this data.
+If you use these outputs, please cite this dataset and MMLU-ProX:
+
+```bibtex
+@misc{3ae3ae2026mmluproxlite,
+  author       = {3ae3ae},
+  title        = {{MMLU-ProX-Lite}: Where Do Recent Lightweight {LLMs} Break Down?},
+  year         = {2026},
+  howpublished = {\url{https://huggingface.co/datasets/3ae3ae3ae/mmlu-prox-lite-evals}},
+  note         = {Code and analysis: \url{https://github.com/3ae3ae/mmlu-prox-lite-evals}}
+}
+
+@article{xuan2025mmluprox,
+  title={Mmlu-prox: A multilingual benchmark for advanced large language model evaluation},
+  author={Weihao Xuan and Rui Yang and Heli Qi and Qingcheng Zeng and Yunze Xiao and Aosong Feng and Dairui Liu and Yun Xing and Junjue Wang and Fan Gao and Jinghui Lu and Yuang Jiang and Huitao Li and Xin Li and Kunyu Yu and Ruihai Dong and Shangding Gu and Yuekang Li and Xiaofei Xie and Felix Juefei-Xu and Foutse Khomh and Osamu Yoshie and Qingyu Chen and Douglas Teodoro and Nan Liu and Randy Goebel and Lei Ma and Edison Marrese-Taylor and Shijian Lu and Yusuke Iwasawa and Yutaka Matsuo and Irene Li},
+  journal={arXiv preprint arXiv:2503.10497},
+  year={2025}
+}
+```
