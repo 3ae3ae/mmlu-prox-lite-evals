@@ -1,4 +1,4 @@
-"""Build results/recovered-usage/summary.md from the recovered per-question usage.
+"""Build results/recovered-usage/summary.md and the README token tables from the recovered usage.
 
     uv run python analysis/usage_recovery/summarize.py
 """
@@ -12,7 +12,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "analysis"))
-from analyze import ORDER, REFERENCE, markdown_table  # noqa: E402
+from analyze import ORDER, REFERENCE, markdown_table, readme_sections  # noqa: E402
 
 DIR = ROOT / "results/recovered-usage"
 LANGUAGES = yaml.safe_load((ROOT / "configs/protocol.yaml").read_text())["languages"]
@@ -32,6 +32,17 @@ a model, not counts across models.
 """
 
 
+def by_language(frame, column):
+    """Median per question in each language; total in each language ÷ total on the same questions in English."""
+    medians = frame.groupby("language")[column].median()
+    paired = frame.pivot(index="question_id_src", columns="language", values=column)
+    ratios = []
+    for lang in LANGUAGES[1:]:
+        both = paired[["en", lang]].dropna()
+        ratios.append(f"{both[lang].sum() / both['en'].sum():.2f}" if both["en"].sum() else "–")
+    return [f"{medians[lang]:,.0f}" for lang in LANGUAGES], ratios
+
+
 def main():
     nw = pd.read_csv(DIR / "neuralwatt.csv").rename(columns={"reasoning_tokens_est": "reasoning_tokens"})
     gw = pd.read_csv(DIR / "llmgateway.csv")
@@ -42,21 +53,17 @@ def main():
     names = {stem: yaml.safe_load((ROOT / "configs/models" / f"{stem}.yaml").read_text())["name"]
              + (" †" if stem in REFERENCE else "") for stem in ORDER}
 
-    coverage, medians, ratios, right_wrong, caps = [], [], [], [], []
+    coverage, medians, ratios, output_medians, output_ratios, right_wrong, caps = [], [], [], [], [], [], []
     for stem in ORDER:
         frame, check = data[data["model"] == stem], checks[stem]
         name = names[stem]
         verified = f"{check['right']}/{check['checked']} ({check['check']})" if "check" in check else "exact"
         coverage.append([name, f"{check['matched']:,}", check["method"], verified, frame["source"].iloc[0],
                          f"{frame['reasoning_tokens'].gt(0).mean():.0%}"])
-        by_language = frame.groupby("language")["reasoning_tokens"]
-        medians.append([name] + [f"{by_language.median()[lang]:,.0f}" for lang in LANGUAGES])
-        paired = frame.pivot(index="question_id_src", columns="language", values="reasoning_tokens")
-        cells = []
-        for lang in LANGUAGES[1:]:
-            both = paired[["en", lang]].dropna()
-            cells.append(f"{both[lang].sum() / both['en'].sum():.2f}" if both["en"].sum() else "–")
-        ratios.append([name] + cells)
+        for column, med, rat in (("reasoning_tokens", medians, ratios), ("completion_tokens", output_medians, output_ratios)):
+            m, r = by_language(frame, column)
+            med.append([name] + m)
+            rat.append([name] + r)
         by_correct = frame.groupby("correct")["reasoning_tokens"].median()
         right_wrong.append([name, f"{by_correct.get(1, float('nan')):,.0f}", f"{by_correct.get(0, float('nan')):,.0f}"])
         empty = full[(full["model"] == stem) & (full["empty_answer"] == 1)]
@@ -79,6 +86,11 @@ def main():
         " English. Part of a difference can be tokenization (some scripts take more tokens) or the"
         " language the model reasons in, not only more reasoning.\n",
         markdown_table(["Model"] + LANGUAGES[1:], ratios),
+        "\n## Output tokens by language\n",
+        "All output tokens (reasoning + answer, `completion_tokens`). **Median per question:**\n",
+        markdown_table(["Model"] + LANGUAGES, output_medians),
+        "\n**Relative to English** (as above):\n",
+        markdown_table(["Model"] + LANGUAGES[1:], output_ratios),
         "\n## Right and wrong answers\n",
         "Median reasoning tokens per question, all languages:\n",
         markdown_table(["Model", "Right", "Wrong"], right_wrong),
@@ -91,6 +103,29 @@ def main():
     ]
     (DIR / "summary.md").write_text("\n".join(sections), encoding="utf-8")
     print("wrote", DIR / "summary.md")
+
+    readme = ROOT / "README.md"
+    prefix, suffix = readme_sections(readme, "usage")
+    relative = lambda med, rat: [[m[0], m[1]] + r[1:] for m, r in zip(med, rat)]  # English median, then ratios
+    header = ["Model", "en (tokens)"] + [f"{lang} ×" for lang in LANGUAGES[1:]]
+    block = "\n".join([
+        "",
+        "**Output tokens (reasoning + answer) relative to English.** en: median tokens per English question."
+        " Other columns: total tokens in that language ÷ total on the same questions in English, so 1.30 means"
+        " 30% more. Matched questions only; per-language medians are in"
+        " [`results/recovered-usage/summary.md`](results/recovered-usage/summary.md).",
+        "",
+        markdown_table(header, relative(output_medians, output_ratios)),
+        "",
+        "**Reasoning tokens relative to English**, same layout. Reported by LLM Gateway; estimated for the"
+        " Neuralwatt models. Claude Sonnet 5.5 and GPT-6.1 Sol answer most questions without reasoning"
+        " (English median 0), so their ratios rest on the questions where they did reason.",
+        "",
+        markdown_table(header, relative(medians, ratios)),
+        "",
+    ])
+    readme.write_bytes(prefix + block.encode("utf-8") + suffix)
+    print("wrote token tables to", readme)
 
 
 if __name__ == "__main__":

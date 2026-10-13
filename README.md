@@ -267,6 +267,39 @@ row per question in `neuralwatt.csv` and `llmgateway.csv`; the providers' record
   neighbouring questions (same language, nearly always same subject), so per-language figures hold
   and per-question pairs are noisier. Gemini's anchors stop before Russian, Arabic and Swahili.
 
+<!-- usage:start -->
+
+**Output tokens (reasoning + answer) relative to English.** en: median tokens per English question. Other columns: total tokens in that language ÷ total on the same questions in English, so 1.30 means 30% more. Matched questions only; per-language medians are in [`results/recovered-usage/summary.md`](results/recovered-usage/summary.md).
+
+| Model | en (tokens) | zh × | ja × | ko × | pt × | de × | id × | ru × | ar × | sw × |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Claude Haiku 5.5 | 459 | 1.35 | 1.50 | 1.58 | 1.44 | 1.74 | 1.59 | 1.44 | 1.81 | 1.68 |
+| GPT-6 Luna | 186 | 1.02 | 1.39 | 1.12 | 1.09 | 1.06 | 1.10 | 1.10 | 1.10 | 1.21 |
+| Gemini 3.8 Flash | 474 | 1.23 | 1.27 | 1.18 | 1.16 | 1.22 | 1.22 | 1.16 | 1.27 | 1.32 |
+| Claude Sonnet 5.5 † | 196 | 1.19 | 1.36 | 1.48 | 1.25 | 1.45 | 1.37 | 1.27 | 1.53 | 1.62 |
+| GPT-6.1 Sol † | 98 | 1.26 | 1.64 | 1.32 | 1.18 | 1.23 | 1.24 | 1.23 | 1.14 | 1.27 |
+| DeepSeek V4.1 Flash | 359 | 1.32 | 1.55 | 1.55 | 1.26 | 1.31 | 1.41 | 1.28 | 1.29 | 1.73 |
+| GLM-5.3 † | 544 | 1.31 | 1.24 | 1.09 | 1.22 | 1.39 | 1.32 | 1.01 | 1.17 | 1.49 |
+| GLM-5.3-Flash | 448 | 1.20 | 1.38 | 1.18 | 0.90 | 1.14 | 1.18 | 0.96 | 1.13 | 1.18 |
+| Qwen 3.8 27B | 686 | 1.09 | 1.62 | 1.65 | 1.30 | 1.18 | 1.14 | 1.37 | 1.30 | 1.84 |
+| Gemma 4 31B | 1,376 | 1.02 | 0.95 | 0.91 | 0.90 | 0.93 | 0.87 | 0.96 | 0.88 | 0.97 |
+
+**Reasoning tokens relative to English**, same layout. Reported by LLM Gateway; estimated for the Neuralwatt models. Claude Sonnet 5.5 and GPT-6.1 Sol answer most questions without reasoning (English median 0), so their ratios rest on the questions where they did reason.
+
+| Model | en (tokens) | zh × | ja × | ko × | pt × | de × | id × | ru × | ar × | sw × |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Claude Haiku 5.5 | 64 | 1.05 | 1.08 | 1.05 | 1.12 | 1.24 | 1.10 | 1.11 | 1.19 | 1.18 |
+| GPT-6 Luna | 106 | 1.01 | 1.25 | 1.09 | 1.06 | 1.02 | 1.07 | 1.09 | 1.08 | 1.21 |
+| Gemini 3.8 Flash | 309 | 1.26 | 1.26 | 1.16 | 1.15 | 1.24 | 1.23 | 1.14 | 1.27 | 1.31 |
+| Claude Sonnet 5.5 † | 0 | 1.76 | 2.02 | 2.01 | 1.71 | 1.86 | 1.62 | 1.65 | 2.34 | 2.15 |
+| GPT-6.1 Sol † | 0 | 1.13 | 1.19 | 1.11 | 1.10 | 1.09 | 1.07 | 1.12 | 1.05 | 1.25 |
+| DeepSeek V4.1 Flash | 240 | 1.34 | 1.55 | 1.58 | 1.28 | 1.31 | 1.43 | 1.29 | 1.31 | 1.79 |
+| GLM-5.3 † | 351 | 1.31 | 1.21 | 1.06 | 1.21 | 1.39 | 1.30 | 0.99 | 1.15 | 1.48 |
+| GLM-5.3-Flash | 267 | 1.21 | 1.35 | 1.14 | 0.87 | 1.12 | 1.16 | 0.94 | 1.11 | 1.16 |
+| Qwen 3.8 27B | 459 | 1.09 | 1.63 | 1.69 | 1.31 | 1.17 | 1.13 | 1.38 | 1.30 | 1.84 |
+| Gemma 4 31B | 920 | 1.00 | 0.93 | 0.88 | 0.87 | 0.90 | 0.83 | 0.92 | 0.84 | 0.93 |
+<!-- usage:end -->
+
 Token counts use each model's tokenizer, so compare languages within a model, not counts across
 models. A few things the records show:
 

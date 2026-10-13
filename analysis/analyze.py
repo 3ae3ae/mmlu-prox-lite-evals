@@ -149,18 +149,18 @@ def benjamini_hochberg(p_values):
     return q_values
 
 
-def readme_sections(path):
+def readme_sections(path, name="results"):
     # Work in bytes so text and line endings outside the block stay untouched.
     lines = path.read_bytes().splitlines(keepends=True)
     positions = []
-    for marker in (b"<!-- results:start -->", b"<!-- results:end -->"):
+    for marker in (f"<!-- {name}:start -->".encode(), f"<!-- {name}:end -->".encode()):
         matches = [i for i, line in enumerate(lines) if line.rstrip(b"\r\n") == marker]
         if len(matches) != 1:
             raise ValueError(f"{path}: expected exactly one marker line {marker.decode()}, found {len(matches)}")
         positions.append(matches[0])
     start, end = positions
     if start >= end:
-        raise ValueError(f"{path}: results:start must precede results:end")
+        raise ValueError(f"{path}: {name}:start must precede {name}:end")
     return b"".join(lines[:start + 1]), b"".join(lines[end:])
 
 
