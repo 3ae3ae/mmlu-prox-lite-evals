@@ -115,8 +115,8 @@ outputs:
     # Uploaded after the runs with the Hugging Face CLI (`hf upload`), one folder per model,
     # in the same layout lm-eval writes. lm-eval 0.4.13's own uploader (--hf_hub_log_args) was
     # dropped: with datasets 5.1 its dataset-card step crashes, and the one run that used it
-    # uploaded only part of its sample files. Private until reviewed.
-    repo: 3ae3ae3ae/mmlu-prox-lite-evals-private
+    # uploaded only part of its sample files.
+    repo: 3ae3ae3ae/mmlu-prox-lite-evals
 
 analysis:
   # Lite subjects are unbalanced (19 history ... 68 math questions per language):

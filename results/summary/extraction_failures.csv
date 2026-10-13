@@ -79,6 +79,16 @@ glm-5-3-flash,id,8
 glm-5-3-flash,ru,4
 glm-5-3-flash,ar,8
 glm-5-3-flash,sw,5
+qwen-3-8-27b,en,0
+qwen-3-8-27b,zh,0
+qwen-3-8-27b,ja,0
+qwen-3-8-27b,ko,0
+qwen-3-8-27b,pt,1
+qwen-3-8-27b,de,0
+qwen-3-8-27b,id,0
+qwen-3-8-27b,ru,1
+qwen-3-8-27b,ar,0
+qwen-3-8-27b,sw,0
 gemma-4-31b,en,0
 gemma-4-31b,zh,0
 gemma-4-31b,ja,0

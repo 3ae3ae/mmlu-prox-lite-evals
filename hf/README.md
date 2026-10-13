@@ -64,8 +64,7 @@ accuracy on the same parallel questions) and which subjects it is weak in. It is
 and models are not meant to be compared with each other: reasoning effort differs by model (the
 developer's default for most of them; see the GitHub README).
 
-**Status:** 8 of 10 models are uploaded. GLM-5.3 and Qwen 3.8 27B are still running and will be
-added when they finish.
+**Status:** complete. All 10 models are uploaded.
 
 Code, protocol, model settings and summary tables:
 [github.com/3ae3ae/mmlu-prox-lite-evals](https://github.com/3ae3ae/mmlu-prox-lite-evals).
