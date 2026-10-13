@@ -370,7 +370,6 @@ def main():
     # The README leads with the within-model comparisons and leaves out the cross-language average.
     table_a_readme = markdown_table(["Model"] + languages, [row[:-1] for row in accuracy_rows])
     readme_block = "\n" + "\n\n".join([
-        generated + "; models still running are not listed._",
         "**Language gap vs. English (percentage points).** Each model against its own English "
         "score on the same questions. `*` marks a 95% paired-bootstrap confidence interval that "
         "excludes zero; the intervals are in [`results/summary.md`](results/summary.md).",
@@ -385,10 +384,9 @@ def main():
         table_cell_compact,
         "**Strict accuracy (%) by language.**",
         table_a_readme,
-        "**Lenient re-scoring: percentage points gained over strict.** A strict-wrong answer "
-        "counts as correct when the OpenAI Decisions API (`gpt-6-luna`), shown only the response "
-        "and the options, reads the response's own final answer as the gold option. Large gains "
-        "mean answers were given in a format the strict regex misses.",
+        "**Lenient re-scoring: percentage points gained over strict** (method under "
+        "[Methodology](#methodology-protocol-v1)). Large gains would mean answers given in a format "
+        "the strict regex misses.",
         table_gain if gain_rows else "_Lenient re-scoring has not run yet._",
     ]) + "\n\n"
 
