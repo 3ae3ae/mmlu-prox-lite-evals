@@ -21,7 +21,7 @@ HEADER = """# Recovered token usage of the main run
 
 The main run kept only each answer's text. This table set restores per-question token usage from
 the providers' own records (Neuralwatt's usage API, LLM Gateway's request logs), which carry no
-question text and were tied to questions after the fact; see [README](../../README.md#recovered-token-usage)
+question text and were tied to questions after the fact; see [README](../../README.md#how-the-usage-was-recovered)
 for the method. Counts are each provider's, in each model's own tokenizer: compare languages within
 a model, not counts across models.
 
@@ -112,8 +112,7 @@ def main():
         "",
         "**Output tokens (reasoning + answer) relative to English.** en: median tokens per English question."
         " Other columns: total tokens in that language ÷ total on the same questions in English, so 1.30 means"
-        " 30% more. Matched questions only; per-language medians are in"
-        " [`results/recovered-usage/summary.md`](results/recovered-usage/summary.md).",
+        " 30% more. Matched questions only.",
         "",
         markdown_table(header, relative(output_medians, output_ratios)),
         "",

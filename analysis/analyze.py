@@ -374,6 +374,8 @@ def main():
         "score on the same questions. `*` marks a 95% paired-bootstrap confidence interval that "
         "excludes zero; the intervals are in [`results/summary.md`](results/summary.md).",
         table_b_compact,
+        "**Strict accuracy (%) by language**, the scores the gaps above are computed from.",
+        table_a_readme,
         "**Strict accuracy (%) by subject, pooled over the 10 languages.** The last row is the "
         "number of questions per subject in each language; small subjects are noisy.",
         table_c,
@@ -382,8 +384,6 @@ def main():
         "that model's 126 cells, using exact McNemar tests. Gaps are in percentage points; every cell is "
         "in [`results/summary/language_subject_gap.csv`](results/summary/language_subject_gap.csv).",
         table_cell_compact,
-        "**Strict accuracy (%) by language.**",
-        table_a_readme,
         "**Lenient re-scoring: percentage points gained over strict** (method under "
         "[Methodology](#methodology-protocol-v1)). Large gains would mean answers given in a format "
         "the strict regex misses.",

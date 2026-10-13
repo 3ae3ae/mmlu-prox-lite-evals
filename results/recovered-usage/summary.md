@@ -2,7 +2,7 @@
 
 The main run kept only each answer's text. This table set restores per-question token usage from
 the providers' own records (Neuralwatt's usage API, LLM Gateway's request logs), which carry no
-question text and were tied to questions after the fact; see [README](../../README.md#recovered-token-usage)
+question text and were tied to questions after the fact; see [README](../../README.md#how-the-usage-was-recovered)
 for the method. Counts are each provider's, in each model's own tokenizer: compare languages within
 a model, not counts across models.
 

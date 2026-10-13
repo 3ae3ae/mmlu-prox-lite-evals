@@ -38,6 +38,21 @@ reasoning budget.
 | Qwen 3.8 27B | -3.1* | -3.4* | -2.7* | -3.6* | -1.9 | -2.2 | -2.4* | -2.7* | -8.5* |
 | Gemma 4 31B | -2.7* | -3.1* | -2.2 | -2.0 | -2.7* | -1.2 | -0.9 | -2.4* | -6.3* |
 
+**Strict accuracy (%) by language**, the scores the gaps above are computed from.
+
+| Model | en | zh | ja | ko | pt | de | id | ru | ar | sw |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Claude Haiku 5.5 | 83.8 | 82.5 | 82.8 | 83.3 | 83.2 | 83.5 | 83.7 | 83.7 | 81.6 | 78.4 |
+| GPT-6 Luna | 85.0 | 82.5 | 83.3 | 83.2 | 84.4 | 83.5 | 83.0 | 82.7 | 83.2 | 71.4 |
+| Gemini 3.8 Flash | 90.5 | 89.1 | 88.9 | 87.8 | 88.9 | 89.1 | 89.1 | 89.6 | 89.8 | 87.8 |
+| Claude Sonnet 5.5 † | 89.3 | 85.2 | 85.7 | 85.7 | 88.8 | 86.9 | 87.9 | 87.6 | 86.2 | 84.0 |
+| GPT-6.1 Sol † | 90.1 | 87.8 | 87.6 | 87.4 | 88.3 | 88.4 | 88.8 | 89.3 | 88.8 | 75.5 |
+| DeepSeek V4.1 Flash | 86.9 | 83.8 | 84.5 | 83.2 | 87.1 | 84.7 | 84.2 | 87.6 | 84.7 | 83.3 |
+| GLM-5.3 † | 86.1 | 83.5 | 84.2 | 85.4 | 85.5 | 84.5 | 86.4 | 83.8 | 84.9 | 81.0 |
+| GLM-5.3-Flash | 86.4 | 83.0 | 82.7 | 83.8 | 85.4 | 83.8 | 84.9 | 84.7 | 82.8 | 79.4 |
+| Qwen 3.8 27B | 85.4 | 82.3 | 82.0 | 82.7 | 81.8 | 83.5 | 83.2 | 83.0 | 82.7 | 76.9 |
+| Gemma 4 31B | 86.2 | 83.5 | 83.2 | 84.0 | 84.2 | 83.5 | 85.0 | 85.4 | 83.8 | 79.9 |
+
 **Strict accuracy (%) by subject, pooled over the 10 languages.** The last row is the number of questions per subject in each language; small subjects are noisy.
 
 | Model | biology | business | chemistry | computer science | economics | engineering | health | history | law | math | other | philosophy | physics | psychology |
@@ -69,21 +84,6 @@ reasoning budget.
 | Qwen 3.8 27B | none |
 | Gemma 4 31B | none |
 
-**Strict accuracy (%) by language.**
-
-| Model | en | zh | ja | ko | pt | de | id | ru | ar | sw |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Claude Haiku 5.5 | 83.8 | 82.5 | 82.8 | 83.3 | 83.2 | 83.5 | 83.7 | 83.7 | 81.6 | 78.4 |
-| GPT-6 Luna | 85.0 | 82.5 | 83.3 | 83.2 | 84.4 | 83.5 | 83.0 | 82.7 | 83.2 | 71.4 |
-| Gemini 3.8 Flash | 90.5 | 89.1 | 88.9 | 87.8 | 88.9 | 89.1 | 89.1 | 89.6 | 89.8 | 87.8 |
-| Claude Sonnet 5.5 † | 89.3 | 85.2 | 85.7 | 85.7 | 88.8 | 86.9 | 87.9 | 87.6 | 86.2 | 84.0 |
-| GPT-6.1 Sol † | 90.1 | 87.8 | 87.6 | 87.4 | 88.3 | 88.4 | 88.8 | 89.3 | 88.8 | 75.5 |
-| DeepSeek V4.1 Flash | 86.9 | 83.8 | 84.5 | 83.2 | 87.1 | 84.7 | 84.2 | 87.6 | 84.7 | 83.3 |
-| GLM-5.3 † | 86.1 | 83.5 | 84.2 | 85.4 | 85.5 | 84.5 | 86.4 | 83.8 | 84.9 | 81.0 |
-| GLM-5.3-Flash | 86.4 | 83.0 | 82.7 | 83.8 | 85.4 | 83.8 | 84.9 | 84.7 | 82.8 | 79.4 |
-| Qwen 3.8 27B | 85.4 | 82.3 | 82.0 | 82.7 | 81.8 | 83.5 | 83.2 | 83.0 | 82.7 | 76.9 |
-| Gemma 4 31B | 86.2 | 83.5 | 83.2 | 84.0 | 84.2 | 83.5 | 85.0 | 85.4 | 83.8 | 79.9 |
-
 **Lenient re-scoring: percentage points gained over strict** (method under [Methodology](#methodology-protocol-v1)). Large gains would mean answers given in a format the strict regex misses.
 
 | Model | en | zh | ja | ko | pt | de | id | ru | ar | sw |
@@ -112,18 +112,91 @@ failures therefore explain almost none of the language gaps above.
 Swahili math questions (`finish_reason: content_filter`, no output), and they count as wrong. This
 block is most of their large Swahili gaps, and it is the −94.1 and −95.6 point Swahili math cells in
 the language × subject table. Without math, their Swahili gaps are −3.1 and −4.0 points, close to
-their other languages. The other 162 empty responses (GLM-5.3 93, GLM-5.3-Flash 55, Gemini 3.8
-Flash 7, DeepSeek V4.1 Flash 5, Qwen 3.8 27B 2) are spread across languages and subjects. The
-[recovered usage records](#recovered-token-usage) show their cause: all but two of the GLM-5.3,
-GLM-5.3-Flash, DeepSeek V4.1 Flash and Qwen 3.8 27B ones stopped at the 64,000-token cap while still
-reasoning (`finish_reason: length`), and Gemini's 7 were stopped by its safety filter (`SAFETY`).
+their other languages. The other 162 empty responses are spread across languages and subjects:
+GLM-5.3 93, GLM-5.3-Flash 55, DeepSeek V4.1 Flash 5 and Qwen 3.8 27B 2, all but two of which ran into
+the 64,000-token cap while still reasoning (`finish_reason: length`), and Gemini 3.8 Flash 7,
+stopped by its safety filter (`SAFETY`).
 
-Answer-extraction failures, the 10-language averages, lenient accuracies, per-language subject
-accuracies and all confidence intervals are in [`results/summary.md`](results/summary.md); every
-grading decision is in [`results/lenient/`](results/lenient).
-
-Raw per-question outputs (prompts, full responses, extracted answers) are on
+Confidence intervals, answer-extraction failures, 10-language averages, lenient accuracies and
+per-language subject accuracies are in [`results/summary.md`](results/summary.md); every lenient
+grading decision is in [`results/lenient/`](results/lenient). Raw per-question outputs (prompts,
+full responses, extracted answers) are on
 [Hugging Face](https://huggingface.co/datasets/3ae3ae3ae/mmlu-prox-lite-evals).
+
+## Token usage
+
+How many tokens each model spent per question, by language, recovered after the run from the
+providers' records ([how](#how-the-usage-was-recovered)). Counts are in each model's own tokenizer,
+so compare languages within a model, not counts across models.
+
+<!-- usage:start -->
+
+**Output tokens (reasoning + answer) relative to English.** en: median tokens per English question. Other columns: total tokens in that language ÷ total on the same questions in English, so 1.30 means 30% more. Matched questions only.
+
+| Model | en (tokens) | zh × | ja × | ko × | pt × | de × | id × | ru × | ar × | sw × |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Claude Haiku 5.5 | 459 | 1.35 | 1.50 | 1.58 | 1.44 | 1.74 | 1.59 | 1.44 | 1.81 | 1.68 |
+| GPT-6 Luna | 186 | 1.02 | 1.39 | 1.12 | 1.09 | 1.06 | 1.10 | 1.10 | 1.10 | 1.21 |
+| Gemini 3.8 Flash | 474 | 1.23 | 1.27 | 1.18 | 1.16 | 1.22 | 1.22 | 1.16 | 1.27 | 1.32 |
+| Claude Sonnet 5.5 † | 196 | 1.19 | 1.36 | 1.48 | 1.25 | 1.45 | 1.37 | 1.27 | 1.53 | 1.62 |
+| GPT-6.1 Sol † | 98 | 1.26 | 1.64 | 1.32 | 1.18 | 1.23 | 1.24 | 1.23 | 1.14 | 1.27 |
+| DeepSeek V4.1 Flash | 359 | 1.32 | 1.55 | 1.55 | 1.26 | 1.31 | 1.41 | 1.28 | 1.29 | 1.73 |
+| GLM-5.3 † | 544 | 1.31 | 1.24 | 1.09 | 1.22 | 1.39 | 1.32 | 1.01 | 1.17 | 1.49 |
+| GLM-5.3-Flash | 448 | 1.20 | 1.38 | 1.18 | 0.90 | 1.14 | 1.18 | 0.96 | 1.13 | 1.18 |
+| Qwen 3.8 27B | 686 | 1.09 | 1.62 | 1.65 | 1.30 | 1.18 | 1.14 | 1.37 | 1.30 | 1.84 |
+| Gemma 4 31B | 1,376 | 1.02 | 0.95 | 0.91 | 0.90 | 0.93 | 0.87 | 0.96 | 0.88 | 0.97 |
+
+**Reasoning tokens relative to English**, same layout. Reported by LLM Gateway; estimated for the Neuralwatt models. Claude Sonnet 5.5 and GPT-6.1 Sol answer most questions without reasoning (English median 0), so their ratios rest on the questions where they did reason.
+
+| Model | en (tokens) | zh × | ja × | ko × | pt × | de × | id × | ru × | ar × | sw × |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Claude Haiku 5.5 | 64 | 1.05 | 1.08 | 1.05 | 1.12 | 1.24 | 1.10 | 1.11 | 1.19 | 1.18 |
+| GPT-6 Luna | 106 | 1.01 | 1.25 | 1.09 | 1.06 | 1.02 | 1.07 | 1.09 | 1.08 | 1.21 |
+| Gemini 3.8 Flash | 309 | 1.26 | 1.26 | 1.16 | 1.15 | 1.24 | 1.23 | 1.14 | 1.27 | 1.31 |
+| Claude Sonnet 5.5 † | 0 | 1.76 | 2.02 | 2.01 | 1.71 | 1.86 | 1.62 | 1.65 | 2.34 | 2.15 |
+| GPT-6.1 Sol † | 0 | 1.13 | 1.19 | 1.11 | 1.10 | 1.09 | 1.07 | 1.12 | 1.05 | 1.25 |
+| DeepSeek V4.1 Flash | 240 | 1.34 | 1.55 | 1.58 | 1.28 | 1.31 | 1.43 | 1.29 | 1.31 | 1.79 |
+| GLM-5.3 † | 351 | 1.31 | 1.21 | 1.06 | 1.21 | 1.39 | 1.30 | 0.99 | 1.15 | 1.48 |
+| GLM-5.3-Flash | 267 | 1.21 | 1.35 | 1.14 | 0.87 | 1.12 | 1.16 | 0.94 | 1.11 | 1.16 |
+| Qwen 3.8 27B | 459 | 1.09 | 1.63 | 1.69 | 1.31 | 1.17 | 1.13 | 1.38 | 1.30 | 1.84 |
+| Gemma 4 31B | 920 | 1.00 | 0.93 | 0.88 | 0.87 | 0.90 | 0.83 | 0.92 | 0.84 | 0.93 |
+<!-- usage:end -->
+
+- Most models spend more tokens on the same questions outside English, up to about 1.8× in
+  Swahili; Gemma 4 31B is the main exception. Part of this is tokenization (some scripts take more
+  tokens) and the language a model reasons in, so the ratios are not a measure of effort alone.
+- Claude Sonnet 5.5 reasoned on 14% of questions and GPT-6.1 Sol on 44%, at their default efforts;
+  every other model reasoned on nearly all.
+- Every model spent more reasoning tokens, on average, on questions it got wrong.
+
+Per-language medians, right/wrong splits and token-cap counts are in
+[`results/recovered-usage/summary.md`](results/recovered-usage/summary.md).
+
+### How the usage was recovered
+
+lm-eval keeps only each answer's text. Neuralwatt's usage API and LLM Gateway's request logs (read
+through a dashboard login) still held each request's token counts, finish reason, duration and
+cost, but no prompt or answer text. Each record was tied to its question by two facts: lm-eval sends
+a model's requests in a fixed order (language, subject, question), and the record's prompt token
+count must equal the question's. That count is exact for the Neuralwatt models (their own tokenizers
+and chat templates) and the GPT models (o200k + 10). For Claude and Gemini it is known only for the
+questions of a short re-run, which anchor an alignment by order. The re-run (2026-10-13) asked every
+model a random 1/10 of the questions with the main run's settings and logged each API's usage
+report; it was stopped partway, is not a benchmark, and only its prompt token counts and request IDs
+are kept.
+
+- **Neuralwatt models:** 5,877–5,880 of 5,880 questions matched; 1,305 of 1,307 re-run requests,
+  whose question is known from their request ID, matched the right one. Neuralwatt does not report
+  reasoning tokens; they are estimated as output − answer − a fixed overhead, within ±1 token on
+  re-run requests.
+- **GPT-6 Luna, GPT-6.1 Sol:** every question matched except the 68 blocked Swahili math questions;
+  reasoning tokens as reported.
+- **Claude Haiku 5.5, Claude Sonnet 5.5, Gemini 3.8 Flash:** 5,772–5,825 matched; 88–94% of anchors
+  held out of the alignment tie to the right question, and the misses are swaps between neighbouring
+  questions, so per-language figures hold. Gemini's anchors stop before Russian, Arabic and Swahili.
+
+Per-question rows and the providers' records are in
+[`results/recovered-usage/`](results/recovered-usage).
 
 ## Models
 
@@ -131,30 +204,17 @@ Full settings with sources are in [`configs/models/`](configs/models).
 
 † Larger mid-tier or flagship models included as references; the others are lightweight models.
 
-**Closed models**, through [LLM Gateway](https://llmgateway.io) (DevPass plan). The gateway picks
-the provider for each request from the ones listed, and the provider cannot be pinned on this plan.
+**Closed models**, through [LLM Gateway](https://llmgateway.io) (DevPass plan), which picks the
+provider for each request; it cannot be pinned on this plan. Served by: the provider of the answers
+kept, from the gateway's logs.
 
-| Model | Reasoning effort | API model ID | Possible providers | Max tokens |
+| Model | Reasoning effort | API model ID | Served by | Max tokens |
 |---|---|---|---|---|
-| Claude Haiku 5.5 | `medium` | `claude-haiku-5-5` | Anthropic, AWS Bedrock | 64,000 |
-| GPT-6 Luna | `medium` | `gpt-6-luna` | OpenAI, Azure | 64,000 |
-| Gemini 3.8 Flash | `medium` | `gemini-3.8-flash` | Google AI Studio, Vertex AI | 65,536 |
-| Claude Sonnet 5.5 † | `high` | `claude-sonnet-5-5` | Anthropic, Azure, AWS Bedrock | 64,000 |
-| GPT-6.1 Sol † | `medium` | `gpt-6.1-sol` | OpenAI, Azure | 64,000 |
-
-lm-eval doesn't log the serving provider. These are the gateway dashboard's request counts for
-2026-10-10 (KST), the day all five runs took place:
-
-| Model | Requests by provider |
-|---|---|
-| Claude Haiku 5.5 | AWS Bedrock 5,860 |
-| GPT-6 Luna | Azure 6,065 · OpenAI 61 |
-| Gemini 3.8 Flash | Vertex AI 5,895 |
-| Claude Sonnet 5.5 † | AWS Bedrock 5,864 · Anthropic 42 |
-| GPT-6.1 Sol † | Azure 5,941 |
-
-Each model was served almost entirely (≥ 99%) by one provider. The counts include smoke tests,
-retries and other use of the account that day.
+| Claude Haiku 5.5 | `medium` | `claude-haiku-5-5` | AWS Bedrock (99%), Anthropic | 64,000 |
+| GPT-6 Luna | `medium` | `gpt-6-luna` | Azure (99%), OpenAI | 64,000 |
+| Gemini 3.8 Flash | `medium` | `gemini-3.8-flash` | Vertex AI | 65,536 |
+| Claude Sonnet 5.5 † | `high` | `claude-sonnet-5-5` | AWS Bedrock (99%), Anthropic | 64,000 |
+| GPT-6.1 Sol † | `medium` | `gpt-6.1-sol` | Azure | 64,000 |
 
 **Open-weight models**, served by [Neuralwatt](https://portal.neuralwatt.com/) on its own GPUs.
 Neuralwatt publishes the exact Hugging Face checkpoint it serves, including quantization.
@@ -216,10 +276,9 @@ The full protocol is in [`configs/protocol.yaml`](configs/protocol.yaml) and was
 - **2026-10-12:** GLM-5.3 and Qwen 3.8 27B moved from Neuralwatt's Flex tier to its standard tier,
   which serves the same checkpoint, to finish sooner. GLM-5.3 generated about twice as fast there;
   Qwen 3.8 27B at about the same speed. GLM-5.3 moved after 2,936 answers (60 of them from an
-  earlier, brief standard-tier attempt) and Qwen 3.8 27B after 1,387. The
-  standard tier's Cloudflare front end cuts responses that take over 100 s, so these requests are
-  streamed through a small relay, [`scripts/stream_relay.py`](scripts/stream_relay.py), which joins
-  the streamed answer text and hands it to lm-eval. Prompts, settings and scoring are unchanged.
+  earlier, brief standard-tier attempt) and Qwen 3.8 27B after 1,387. The standard tier cuts
+  responses that take over 100 s, so these requests were streamed through
+  [`scripts/stream_relay.py`](scripts/stream_relay.py). Prompts, settings and scoring are unchanged.
 - **2026-10-12:** the language × subject analysis showed that Azure's content filter had blocked all
   68 Swahili math questions for GPT-6 Luna and GPT-6.1 Sol. Those 136 questions were sent again,
   after the results had been seen, and were all blocked again. The results are unchanged: the
@@ -231,7 +290,7 @@ The full protocol is in [`configs/protocol.yaml`](configs/protocol.yaml) and was
   95% CIs can be as wide as ±22 points; treat single-cell differences as exploratory.
 - lm-eval logs only the final response text, not the reasoning or the finish reason, so a
   truncated response looks like a wrong answer. Max tokens are set generously to keep truncation rare.
-  Token counts and finish reasons were [recovered afterwards](#recovered-token-usage) from the
+  Token counts and finish reasons were [recovered afterwards](#token-usage) from the
   providers' records; the reasoning text was not.
 - Averages are over the 10 evaluated languages and are not comparable to 29-language averages reported elsewhere.
 - API models change behind stable names; result files carry their run timestamp.
@@ -239,81 +298,6 @@ The full protocol is in [`configs/protocol.yaml`](configs/protocol.yaml) and was
   lm-eval caches an empty response only when a run finishes, so a resumed run re-sent the
   questions that had come back empty. GLM-5.3 and Qwen 3.8 27B, interrupted most often, got the
   most such second tries.
-
-## Recovered token usage
-
-lm-eval keeps only each answer's text, so the main run recorded no token usage. It was recovered
-afterwards from the providers' own per-request records: Neuralwatt's usage API, and LLM Gateway's
-request logs (readable only through a dashboard login, not with the API key). These records hold
-token counts, finish reasons, durations and cost, but no prompt or answer text, so each record was
-tied to its question by two facts: lm-eval sends a model's requests in a fixed order (language,
-subject, question), and a record's prompt token count must equal the question's. That count is known
-exactly for the Neuralwatt models (their own tokenizers and chat templates) and the GPT models (o200k
-+ 10). For Claude and Gemini it is known only for the questions of a short re-run (below), which
-anchor an alignment by order.
-
-Results are in [`results/recovered-usage/summary.md`](results/recovered-usage/summary.md), with one
-row per question in `neuralwatt.csv` and `llmgateway.csv`; the providers' records themselves are in
-[`results/recovered-usage/records/`](results/recovered-usage/records). How far they can be trusted:
-
-- **Neuralwatt models:** 5,877–5,880 of 5,880 questions matched. Of 1,307 re-run requests whose
-  question is known from their request ID, 1,305 matched the right one. Neuralwatt does not report
-  reasoning tokens, so they are estimated as output − answer − a fixed overhead, which came within
-  ±1 token of the counts reported or tokenized on re-run requests.
-- **GPT-6 Luna, GPT-6.1 Sol:** exact prompt counts; every question matched except the 68 blocked
-  Swahili math questions. Reasoning tokens as reported.
-- **Claude Haiku 5.5, Claude Sonnet 5.5, Gemini 3.8 Flash:** 5,772–5,825 matched. On anchors held
-  out of the alignment, 88–94% tie to the right question; the misses are swaps between
-  neighbouring questions (same language, nearly always same subject), so per-language figures hold
-  and per-question pairs are noisier. Gemini's anchors stop before Russian, Arabic and Swahili.
-
-<!-- usage:start -->
-
-**Output tokens (reasoning + answer) relative to English.** en: median tokens per English question. Other columns: total tokens in that language ÷ total on the same questions in English, so 1.30 means 30% more. Matched questions only; per-language medians are in [`results/recovered-usage/summary.md`](results/recovered-usage/summary.md).
-
-| Model | en (tokens) | zh × | ja × | ko × | pt × | de × | id × | ru × | ar × | sw × |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Claude Haiku 5.5 | 459 | 1.35 | 1.50 | 1.58 | 1.44 | 1.74 | 1.59 | 1.44 | 1.81 | 1.68 |
-| GPT-6 Luna | 186 | 1.02 | 1.39 | 1.12 | 1.09 | 1.06 | 1.10 | 1.10 | 1.10 | 1.21 |
-| Gemini 3.8 Flash | 474 | 1.23 | 1.27 | 1.18 | 1.16 | 1.22 | 1.22 | 1.16 | 1.27 | 1.32 |
-| Claude Sonnet 5.5 † | 196 | 1.19 | 1.36 | 1.48 | 1.25 | 1.45 | 1.37 | 1.27 | 1.53 | 1.62 |
-| GPT-6.1 Sol † | 98 | 1.26 | 1.64 | 1.32 | 1.18 | 1.23 | 1.24 | 1.23 | 1.14 | 1.27 |
-| DeepSeek V4.1 Flash | 359 | 1.32 | 1.55 | 1.55 | 1.26 | 1.31 | 1.41 | 1.28 | 1.29 | 1.73 |
-| GLM-5.3 † | 544 | 1.31 | 1.24 | 1.09 | 1.22 | 1.39 | 1.32 | 1.01 | 1.17 | 1.49 |
-| GLM-5.3-Flash | 448 | 1.20 | 1.38 | 1.18 | 0.90 | 1.14 | 1.18 | 0.96 | 1.13 | 1.18 |
-| Qwen 3.8 27B | 686 | 1.09 | 1.62 | 1.65 | 1.30 | 1.18 | 1.14 | 1.37 | 1.30 | 1.84 |
-| Gemma 4 31B | 1,376 | 1.02 | 0.95 | 0.91 | 0.90 | 0.93 | 0.87 | 0.96 | 0.88 | 0.97 |
-
-**Reasoning tokens relative to English**, same layout. Reported by LLM Gateway; estimated for the Neuralwatt models. Claude Sonnet 5.5 and GPT-6.1 Sol answer most questions without reasoning (English median 0), so their ratios rest on the questions where they did reason.
-
-| Model | en (tokens) | zh × | ja × | ko × | pt × | de × | id × | ru × | ar × | sw × |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Claude Haiku 5.5 | 64 | 1.05 | 1.08 | 1.05 | 1.12 | 1.24 | 1.10 | 1.11 | 1.19 | 1.18 |
-| GPT-6 Luna | 106 | 1.01 | 1.25 | 1.09 | 1.06 | 1.02 | 1.07 | 1.09 | 1.08 | 1.21 |
-| Gemini 3.8 Flash | 309 | 1.26 | 1.26 | 1.16 | 1.15 | 1.24 | 1.23 | 1.14 | 1.27 | 1.31 |
-| Claude Sonnet 5.5 † | 0 | 1.76 | 2.02 | 2.01 | 1.71 | 1.86 | 1.62 | 1.65 | 2.34 | 2.15 |
-| GPT-6.1 Sol † | 0 | 1.13 | 1.19 | 1.11 | 1.10 | 1.09 | 1.07 | 1.12 | 1.05 | 1.25 |
-| DeepSeek V4.1 Flash | 240 | 1.34 | 1.55 | 1.58 | 1.28 | 1.31 | 1.43 | 1.29 | 1.31 | 1.79 |
-| GLM-5.3 † | 351 | 1.31 | 1.21 | 1.06 | 1.21 | 1.39 | 1.30 | 0.99 | 1.15 | 1.48 |
-| GLM-5.3-Flash | 267 | 1.21 | 1.35 | 1.14 | 0.87 | 1.12 | 1.16 | 0.94 | 1.11 | 1.16 |
-| Qwen 3.8 27B | 459 | 1.09 | 1.63 | 1.69 | 1.31 | 1.17 | 1.13 | 1.38 | 1.30 | 1.84 |
-| Gemma 4 31B | 920 | 1.00 | 0.93 | 0.88 | 0.87 | 0.90 | 0.83 | 0.92 | 0.84 | 0.93 |
-<!-- usage:end -->
-
-Token counts use each model's tokenizer, so compare languages within a model, not counts across
-models. A few things the records show:
-
-- Claude Sonnet 5.5 reasoned (more than 0 reasoning tokens) on 14% of questions and GPT-6.1 Sol on
-  44%, at their default efforts; every other model reasoned on nearly all.
-- Every model spent more reasoning tokens, on average, on questions it got wrong.
-- Most models spent more reasoning tokens on the same questions outside English. Tokenization and
-  the language a model reasons in also feed into these ratios, so they are not a measure of effort alone.
-
-**The re-run** asked every model, on 2026-10-13, a random 1/10 of the questions (59 per language,
-drawn within each subject) with the main run's settings, through a temporary relay that logged each
-API's usage report. It served only to check the matching and supply anchors, and was stopped partway
-once the recovery was complete enough. It is not a benchmark and its answers are not used; only its
-prompt token counts and request IDs are kept, in `records/probe-anchors.csv`.
 
 ## Repository layout
 
@@ -353,13 +337,8 @@ uv run python analysis/lenient.py
 # rebuild results/summary.md and the README results tables from all finished runs
 uv run python analysis/analyze.py
 
-# recovered token usage. The records are committed, so only the last two steps are needed;
-# the others show how the records were fetched (provider logs expire after their retention period).
-uv run python analysis/usage_recovery/fetch_neuralwatt.py 2026-10-09T00:00:00Z 2026-10-13T09:10:00Z neuralwatt-rows.jsonl.gz
-uv run python analysis/usage_recovery/fetch_neuralwatt.py 2026-10-13T09:10:00Z 2026-10-13T10:43:00Z neuralwatt-probe-rows.jsonl.gz
-#   LLM Gateway logs: run analysis/usage_recovery/llmgateway_logs.js in the browser console on the
-#   logged-in dashboard, then gzip llmgateway-logs.json into results/recovered-usage/records/
-uv run --with transformers --with jinja2 python analysis/usage_recovery/prompt_tokens.py
+# token usage tables, from the committed provider records in results/recovered-usage/records/
+# (each script in analysis/usage_recovery/ says how its records were fetched)
 uv run python analysis/usage_recovery/match.py
 uv run python analysis/usage_recovery/summarize.py
 ```
