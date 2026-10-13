@@ -35,6 +35,10 @@ configs:
     data_files:
       - split: test
         path: deepseek-v4.1-flash-flex/samples_*.jsonl
+  - config_name: glm-5.3
+    data_files:
+      - split: test
+        path: glm-5.3/samples_*.jsonl
   - config_name: glm-5.3-flash-flex
     data_files:
       - split: test
@@ -43,6 +47,10 @@ configs:
     data_files:
       - split: test
         path: gemma-4-31b/samples_*.jsonl
+  - config_name: qwen-3.8-27b
+    data_files:
+      - split: test
+        path: qwen-3.8-27b/samples_*.jsonl
 ---
 
 # MMLU-ProX-Lite Evaluation Outputs
@@ -53,8 +61,8 @@ with lm-evaluation-harness 0.4.13, in 10 languages (en, zh, ja, ko, pt, de, id, 
 
 The purpose is within-model diagnosis: for each model, which languages (relative to its own English
 accuracy on the same parallel questions) and which subjects it is weak in. It is not a leaderboard,
-and models are not meant to be compared with each other: each ran at its own developer's default
-reasoning effort.
+and models are not meant to be compared with each other: reasoning effort differs by model (the
+developer's default for most of them; see the GitHub README).
 
 **Status:** 8 of 10 models are uploaded. GLM-5.3 and Qwen 3.8 27B are still running and will be
 added when they finish.
@@ -83,11 +91,13 @@ Each model is also available as a dataset config (split `test`) in the viewer.
   evaluation analysis.
 - Responses contain only the final message content. The models' reasoning, which some APIs return
   in a separate field, was not logged by lm-evaluation-harness and is not included.
+- In `gpt-6-luna` and `gpt-6.1-sol`, all 68 Swahili math responses are empty: Azure's content filter
+  blocked those prompts. They are scored as wrong.
 
 ## Limitations
 
-- Each model ran once, at temperature 1.0 and its developer's default reasoning effort. Scores
-  are single samples, and reasoning budgets differ across models.
+- Each model ran once, at temperature 1.0. Scores are single samples, and reasoning budgets differ
+  across models.
 - Subjects are unbalanced (per language: 19 history … 68 math questions), so per-subject scores in
   one language are noisy.
 - A response that hit the output-token limit cannot be told apart from a wrong answer in these

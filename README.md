@@ -18,8 +18,9 @@ This is **not a leaderboard**. The core comparisons are across languages and acr
 - **Exploratory:** language × subject combinations, and whether a low score comes from wrong
   answers or from not following the answer format in that language.
 
-Models are deliberately **not** ranked against each other: each runs at its own developer's
-default reasoning effort, so differences between models mix model quality with reasoning budget.
+Models are deliberately **not** ranked against each other: reasoning effort differs by model (the
+developer's default for most of them), so differences between models mix model quality with
+reasoning budget.
 
 ## Results
 
