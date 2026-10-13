@@ -113,7 +113,10 @@ Swahili math questions (`finish_reason: content_filter`, no output), and they co
 block is most of their large Swahili gaps, and it is the −94.1 and −95.6 point Swahili math cells in
 the language × subject table. Without math, their Swahili gaps are −3.1 and −4.0 points, close to
 their other languages. The other 162 empty responses (GLM-5.3 93, GLM-5.3-Flash 55, Gemini 3.8
-Flash 7, DeepSeek V4.1 Flash 5, Qwen 3.8 27B 2) are spread across languages and subjects.
+Flash 7, DeepSeek V4.1 Flash 5, Qwen 3.8 27B 2) are spread across languages and subjects. The
+[recovered usage records](#recovered-token-usage) show their cause: all but two of the GLM-5.3,
+GLM-5.3-Flash, DeepSeek V4.1 Flash and Qwen 3.8 27B ones stopped at the 64,000-token cap while still
+reasoning (`finish_reason: length`), and Gemini's 7 were stopped by its safety filter (`SAFETY`).
 
 Answer-extraction failures, the 10-language averages, lenient accuracies, per-language subject
 accuracies and all confidence intervals are in [`results/summary.md`](results/summary.md); every
@@ -228,12 +231,56 @@ The full protocol is in [`configs/protocol.yaml`](configs/protocol.yaml) and was
   95% CIs can be as wide as ±22 points; treat single-cell differences as exploratory.
 - lm-eval logs only the final response text, not the reasoning or the finish reason, so a
   truncated response looks like a wrong answer. Max tokens are set generously to keep truncation rare.
+  Token counts and finish reasons were [recovered afterwards](#recovered-token-usage) from the
+  providers' records; the reasoning text was not.
 - Averages are over the 10 evaluated languages and are not comparable to 29-language averages reported elsewhere.
 - API models change behind stable names; result files carry their run timestamp.
 - Interrupted runs resumed from lm-eval's request cache, and failed requests were sent again.
   lm-eval caches an empty response only when a run finishes, so a resumed run re-sent the
   questions that had come back empty. GLM-5.3 and Qwen 3.8 27B, interrupted most often, got the
   most such second tries.
+
+## Recovered token usage
+
+lm-eval keeps only each answer's text, so the main run recorded no token usage. It was recovered
+afterwards from the providers' own per-request records: Neuralwatt's usage API, and LLM Gateway's
+request logs (readable only through a dashboard login, not with the API key). These records hold
+token counts, finish reasons, durations and cost, but no prompt or answer text, so each record was
+tied to its question by two facts: lm-eval sends a model's requests in a fixed order (language,
+subject, question), and a record's prompt token count must equal the question's. That count is known
+exactly for the Neuralwatt models (their own tokenizers and chat templates) and the GPT models (o200k
++ 10). For Claude and Gemini it is known only for the questions of a short re-run (below), which
+anchor an alignment by order.
+
+Results are in [`results/recovered-usage/summary.md`](results/recovered-usage/summary.md), with one
+row per question in `neuralwatt.csv` and `llmgateway.csv`; the providers' records themselves are in
+[`results/recovered-usage/records/`](results/recovered-usage/records). How far they can be trusted:
+
+- **Neuralwatt models:** 5,877–5,880 of 5,880 questions matched. Of 1,307 re-run requests whose
+  question is known from their request ID, 1,305 matched the right one. Neuralwatt does not report
+  reasoning tokens, so they are estimated as output − answer − a fixed overhead, which came within
+  ±1 token of the counts reported or tokenized on re-run requests.
+- **GPT-6 Luna, GPT-6.1 Sol:** exact prompt counts; every question matched except the 68 blocked
+  Swahili math questions. Reasoning tokens as reported.
+- **Claude Haiku 5.5, Claude Sonnet 5.5, Gemini 3.8 Flash:** 5,772–5,825 matched. On anchors held
+  out of the alignment, 88–94% tie to the right question; the misses are swaps between
+  neighbouring questions (same language, nearly always same subject), so per-language figures hold
+  and per-question pairs are noisier. Gemini's anchors stop before Russian, Arabic and Swahili.
+
+Token counts use each model's tokenizer, so compare languages within a model, not counts across
+models. A few things the records show:
+
+- Claude Sonnet 5.5 reasoned (more than 0 reasoning tokens) on 14% of questions and GPT-6.1 Sol on
+  44%, at their default efforts; every other model reasoned on nearly all.
+- Every model spent more reasoning tokens, on average, on questions it got wrong.
+- Most models spent more reasoning tokens on the same questions outside English. Tokenization and
+  the language a model reasons in also feed into these ratios, so they are not a measure of effort alone.
+
+**The re-run** asked every model, on 2026-10-13, a random 1/10 of the questions (59 per language,
+drawn within each subject) with the main run's settings, through a temporary relay that logged each
+API's usage report. It served only to check the matching and supply anchors, and was stopped partway
+once the recovery was complete enough. It is not a benchmark and its answers are not used; only its
+prompt token counts and request IDs are kept, in `records/probe-anchors.csv`.
 
 ## Repository layout
 
@@ -244,7 +291,10 @@ scripts/run_eval.py      turns a model config into an `lm-eval run` command and 
 scripts/stream_relay.py  streams requests for API routes that cut long non-streaming responses
 analysis/analyze.py      builds results/summary.md and the tables in this README
 analysis/lenient.py      lenient re-scoring with the OpenAI Decisions API
+analysis/usage_recovery/ recovers the main run's token usage from the providers' records
 results/lenient/         every lenient grading decision, one JSON line per strict-wrong answer
+results/recovered-usage/ recovered token usage: summary, one row per question, matching checks,
+                         and the providers' records it was built from (records/)
 results/                 lm-eval results files per model, and summary tables (committed)
 runs/                    raw lm-eval outputs (git-ignored, published to Hugging Face)
 hf/                      Hugging Face dataset card for the raw outputs
@@ -269,6 +319,16 @@ uv run python analysis/lenient.py
 
 # rebuild results/summary.md and the README results tables from all finished runs
 uv run python analysis/analyze.py
+
+# recovered token usage. The records are committed, so only the last two steps are needed;
+# the others show how the records were fetched (provider logs expire after their retention period).
+uv run python analysis/usage_recovery/fetch_neuralwatt.py 2026-10-09T00:00:00Z 2026-10-13T09:10:00Z neuralwatt-rows.jsonl.gz
+uv run python analysis/usage_recovery/fetch_neuralwatt.py 2026-10-13T09:10:00Z 2026-10-13T10:43:00Z neuralwatt-probe-rows.jsonl.gz
+#   LLM Gateway logs: run analysis/usage_recovery/llmgateway_logs.js in the browser console on the
+#   logged-in dashboard, then gzip llmgateway-logs.json into results/recovered-usage/records/
+uv run --with transformers --with jinja2 python analysis/usage_recovery/prompt_tokens.py
+uv run python analysis/usage_recovery/match.py
+uv run python analysis/usage_recovery/summarize.py
 ```
 
 Raw outputs are uploaded afterwards with the Hugging Face CLI

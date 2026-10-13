@@ -1,0 +1,66 @@
+{
+ "deepseek-v4-1-flash": {
+  "matched": 5879,
+  "method": "exact prompt tokens",
+  "check": "re-run requests",
+  "right": 180,
+  "checked": 180
+ },
+ "glm-5-3": {
+  "matched": 5879,
+  "method": "exact prompt tokens",
+  "check": "re-run requests",
+  "right": 294,
+  "checked": 294
+ },
+ "glm-5-3-flash": {
+  "matched": 5880,
+  "method": "exact prompt tokens",
+  "check": "re-run requests",
+  "right": 341,
+  "checked": 341
+ },
+ "qwen-3-8-27b": {
+  "matched": 5877,
+  "method": "exact prompt tokens",
+  "check": "re-run requests",
+  "right": 107,
+  "checked": 107
+ },
+ "gemma-4-31b": {
+  "matched": 5879,
+  "method": "exact prompt tokens",
+  "check": "re-run requests",
+  "right": 383,
+  "checked": 385
+ },
+ "claude-haiku-5-5": {
+  "method": "anchored order",
+  "check": "held-out anchors",
+  "right": 147,
+  "checked": 159,
+  "matched": 5825
+ },
+ "gpt-6-luna": {
+  "method": "exact prompt tokens",
+  "matched": 5811
+ },
+ "gemini-3-8-flash": {
+  "method": "anchored order",
+  "check": "held-out anchors",
+  "right": 103,
+  "checked": 110,
+  "matched": 5804
+ },
+ "claude-sonnet-5-5": {
+  "method": "anchored order",
+  "check": "held-out anchors",
+  "right": 140,
+  "checked": 159,
+  "matched": 5772
+ },
+ "gpt-6-1-sol": {
+  "method": "exact prompt tokens",
+  "matched": 5812
+ }
+}
