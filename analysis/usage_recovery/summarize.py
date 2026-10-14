@@ -43,12 +43,31 @@ def by_language(frame, column):
     return [f"{medians[lang]:,.0f}" for lang in LANGUAGES], ratios
 
 
+def write_combined(nw, gw):
+    """One table for both providers, model named by its API ID (the Hugging Face config name)."""
+    model_id = {stem: yaml.safe_load((ROOT / "configs/models" / f"{stem}.yaml").read_text())["model_id"] for stem in ORDER}
+    nw = nw.assign(reasoning_tokens_source="estimated", match_method="exact prompt tokens",
+                   served_by=nw["requested_model"].map(lambda m: m if pd.isna(m) else
+                                                       "neuralwatt-flex" if m.endswith("-flex") else "neuralwatt-standard"))
+    gw = gw.assign(reasoning_tokens_source="reported")
+    columns = ["model", "language", "subject", "question_id_src", "correct", "empty_answer", "prompt_tokens",
+               "completion_tokens", "reasoning_tokens", "reasoning_tokens_source", "finish_reason", "served_by",
+               "attempts", "match_method"]
+    both = pd.concat([gw[columns], nw[columns]], ignore_index=True)
+    both.loc[both["completion_tokens"].isna(), ["reasoning_tokens", "reasoning_tokens_source"]] = None
+    both["model"] = both["model"].map(model_id)
+    counts = ["prompt_tokens", "completion_tokens", "reasoning_tokens", "attempts"]
+    both[counts] = both[counts].astype("Int64")  # integers with gaps, written without ".0"
+    both.to_csv(DIR / "token_usage.csv", index=False)
+
+
 def main():
     nw = pd.read_csv(DIR / "neuralwatt.csv").rename(columns={"reasoning_tokens_est": "reasoning_tokens"})
     gw = pd.read_csv(DIR / "llmgateway.csv")
     gw.loc[gw["log_id"].notna(), "reasoning_tokens"] = gw["reasoning_tokens"].fillna(0)
     data = pd.concat([gw.assign(source="reported"), nw.assign(source="estimated")], ignore_index=True)
     full, data = data, data[data["completion_tokens"].notna()]
+    write_combined(nw, gw)
     checks = json.loads((DIR / "checks.json").read_text())
     names = {stem: yaml.safe_load((ROOT / "configs/models" / f"{stem}.yaml").read_text())["name"]
              + (" †" if stem in REFERENCE else "") for stem in ORDER}

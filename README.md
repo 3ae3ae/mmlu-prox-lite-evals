@@ -120,7 +120,7 @@ stopped by its safety filter (`SAFETY`).
 Confidence intervals, answer-extraction failures, 10-language averages, lenient accuracies and
 per-language subject accuracies are in [`results/summary.md`](results/summary.md); every lenient
 grading decision is in [`results/lenient/`](results/lenient). Raw per-question outputs (prompts,
-full responses, extracted answers) are on
+full responses, extracted answers) and per-question token usage (config `token-usage`) are on
 [Hugging Face](https://huggingface.co/datasets/3ae3ae3ae/mmlu-prox-lite-evals).
 
 ## Token usage
